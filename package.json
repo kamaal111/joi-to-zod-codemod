@@ -46,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@kamaalio/prettier-config": "^0.1.2",
+    "@oclif/test": "^4.1.13",
     "@types/node": "^22.15.29",
     "@vitest/coverage-v8": "^3.1.4",
     "eslint": "^9.28.0",

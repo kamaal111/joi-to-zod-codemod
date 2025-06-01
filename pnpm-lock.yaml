@@ -36,6 +36,9 @@ importers:
       '@kamaalio/prettier-config':
         specifier: ^0.1.2
         version: 0.1.2
+      '@oclif/test':
+        specifier: ^4.1.13
+        version: 4.1.13(@oclif/core@4.3.0)
       '@types/node':
         specifier: ^22.15.29
         version: 22.15.29
@@ -826,6 +829,12 @@ packages:
   '@oclif/plugin-warn-if-update-available@3.1.40':
     resolution: {integrity: sha512-k5FBGxjXsSj56075MFVx5I9MAJa082evyPqLUBOjXL9w91q3k/89U+kTCfFNTQga8DykxhMP/7UTuDFV+d/Dhg==}
     engines: {node: '>=18.0.0'}
+
+  '@oclif/test@4.1.13':
+    resolution: {integrity: sha512-pulrTiJRhoAKizFf6y5WeHvM2JyoRiZKV0H8qqYEoE0UHDKqInNmfGJyp8Ip6lTVQeMv1U8YCAXOS/HiWPVWeg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@oclif/core': '>= 3.0.0'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -3819,6 +3828,14 @@ snapshots:
       http-call: 5.3.0
       lodash: 4.17.21
       registry-auth-token: 5.1.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@oclif/test@4.1.13(@oclif/core@4.3.0)':
+    dependencies:
+      '@oclif/core': 4.3.0
+      ansis: 3.17.0
+      debug: 4.4.1(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
