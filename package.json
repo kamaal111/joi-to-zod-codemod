@@ -41,7 +41,8 @@
     "joi": "^17.13.3",
     "joi-to-json-schema": "^5.1.0",
     "jscodeshift": "^17.3.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^3.25.46"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",

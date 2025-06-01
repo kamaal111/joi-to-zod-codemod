@@ -42,6 +42,10 @@ format-check:
 # Run quality checks
 quality: lint format-check type-check
 
+# Preview command
+preview:
+    node ./bin/dev.mjs run -d
+
 # Publish package to NPM
 publish: clean-build install-modules compile
     #!/bin/zsh
