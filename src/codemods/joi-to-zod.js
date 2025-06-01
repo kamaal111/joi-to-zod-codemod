@@ -15,12 +15,31 @@ function transform(fileInfo, api) {
   /**
    * @type {Record<string, import('jscodeshift').ASTPath<import('jscodeshift').EnumDeclaration>}
    */
-  const globalEnumsMappedByIdentifierName = findAllGlobalEnums(j, source)
+  const globalEnumsMappedByIdentifierName = source
+    .find(j.TSEnumDeclaration)
+    .filter(p => p.scope.isGlobal)
     .paths()
     .reduce((acc, p) => {
       const id = p.value.id;
       j.Identifier.assert(id);
       acc[id.name] = p;
+
+      return acc;
+    }, {});
+  /**
+   * @type {Record<string, import('jscodeshift').VariableDeclarator>}
+   */
+  const globalVariablesMappedByIdentifierName = source
+    .find(j.VariableDeclaration)
+    .filter(p => p.scope.isGlobal)
+    .paths()
+    .reduce((acc, p) => {
+      for (const declaration of p.value.declarations) {
+        const id = declaration.id;
+        if (!j.Identifier.check(id)) continue;
+
+        acc[id.name] = declaration;
+      }
 
       return acc;
     }, {});
@@ -31,15 +50,24 @@ function transform(fileInfo, api) {
       const { init } = p.value;
       if (init == null) return null;
 
-      const initSource = j(init).toSource();
+      const initCollection = j(init);
+      const initSource = initCollection.toSource();
       if (!initSource.toLowerCase().includes('joi')) return null;
 
-      const joiSource = j(init)
-        .find(j.Identifier, { name: n => globalEnumsMappedByIdentifierName[n] != null })
+      const joiSchemaReferencedItems = initCollection
+        .find(j.Identifier, {
+          name: n => {
+            return globalEnumsMappedByIdentifierName[n] != null || globalVariablesMappedByIdentifierName[n] != null;
+          },
+        })
         .nodes()
-        .map(n => j(globalEnumsMappedByIdentifierName[n.name].value).toSource())
-        .concat(initSource)
-        .join('\n\n');
+        .map(n => {
+          const value =
+            globalEnumsMappedByIdentifierName[n.name]?.value ?? globalVariablesMappedByIdentifierName[n.name];
+
+          return j(value).toSource();
+        });
+      const joiSource = joiSchemaReferencedItems.concat(initSource).join('\n\n');
 
       return { path: p, source: joiSource.trim() };
     })
@@ -60,15 +88,6 @@ function transform(fileInfo, api) {
     });
 
   return source.toSource();
-}
-
-/**
- * @param {import('jscodeshift').JSCodeshift} j
- * @param {import('jscodeshift').Collection} source
- * @returns {import('jscodeshift').Collection<import('jscodeshift').EnumDeclaration>}
- */
-function findAllGlobalEnums(j, source) {
-  return source.find(j.TSEnumDeclaration).filter(p => p.scope.isGlobal);
 }
 
 export default transform;
