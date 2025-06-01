@@ -3,6 +3,8 @@ import path from 'node:path';
 import ts from 'typescript';
 import fg from 'fast-glob';
 
+import { isUndefinedOrNull } from './optional.js';
+
 const TARGET_FILE_EXTENSIONS = ['ts', 'js', 'jsx', 'tsx'];
 const JOI_IMPORT_TERMS = ['@hapi/joi', 'joi'];
 
@@ -49,14 +51,6 @@ function getAllImportSources(filepath: string): Array<ts.StringLiteral> {
   });
 
   return importSources;
-}
-
-function isUndefinedOrNull<T>(maybeValue: T | undefined | null): maybeValue is undefined | null {
-  return !isNotUndefinedOrNull(maybeValue);
-}
-
-function isNotUndefinedOrNull<T>(maybeValue: T | undefined | null): maybeValue is T {
-  return maybeValue != null;
 }
 
 function getAllTargetFilepaths(targetRootDirectory: string, config: { glob?: Array<string> }): Promise<Array<string>> {
