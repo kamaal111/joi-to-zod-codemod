@@ -4,26 +4,40 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "joi-to-zod-codemod": "./bin/run.mjs"
+  },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "oclif.manifest.json"
   ],
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
+    "build": "pnpm run compile",
     "compile": "tsc",
     "type-check": "tsc --noEmit",
     "lint": "eslint",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "pnpm run lint",
+    "prepack": "oclif manifest"
   },
+  "repository": "kamaal111/joi-to-zod-codemod",
+  "bugs": "https://github.com/kamaal111/joi-to-zod-codemod/issues",
   "keywords": [],
   "author": "Kamaal Farah",
   "license": "MIT",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
+    "@oclif/core": "^4.3.0",
+    "@oclif/plugin-help": "^6.2.28",
+    "fast-glob": "^3.3.3",
     "joi": "^17.13.3",
     "joi-to-json-schema": "^5.1.0",
     "jscodeshift": "^17.3.0",
@@ -39,10 +53,28 @@
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
+    "oclif": "^4.17.46",
     "prettier": "^3.5.3",
     "tsx": "^4.19.4",
     "typescript-eslint": "^8.33.0",
     "vitest": "^3.1.4"
+  },
+  "oclif": {
+    "bin": "joi-to-zod-codemod",
+    "dirname": "joi-to-zod-codemod",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "run": {
+        "description": "Run codemod"
+      }
+    }
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   },
   "prettier": "@kamaalio/prettier-config"
 }

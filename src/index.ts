@@ -1,1 +1,1 @@
-console.log('🐸🐸🐸 hello wonderer');
+export { run } from '@oclif/core';
