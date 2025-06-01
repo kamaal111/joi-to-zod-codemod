@@ -48,7 +48,7 @@ quality: lint format-check type-check
 
 # Preview command
 preview:
-    node ./bin/dev.mjs run -d
+    node ./bin/dev.mjs run -d -g '["!node_modules", "!dist", "!src/codemods"]'
 
 # Publish package to NPM
 publish: clean-build install-modules build-clean
