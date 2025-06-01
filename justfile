@@ -19,9 +19,13 @@ test-watch:
 test-cov:
     {{ PNR }} test:cov
 
-# Compile package
-compile:
-    {{ PNR }} compile
+# Build package
+build:
+    {{ PNR }} build
+
+# Clean and build package
+build-clean:
+    {{ PNR }} clean:build
 
 # Lint package
 lint:
@@ -47,7 +51,7 @@ preview:
     node ./bin/dev.mjs run -d
 
 # Publish package to NPM
-publish: clean-build install-modules compile
+publish: clean-build install-modules build-clean
     #!/bin/zsh
 
     {{ PNX }} tsx scripts/publish-package-json.ts "${VERSION:-null}"
