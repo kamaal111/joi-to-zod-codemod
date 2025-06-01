@@ -43,22 +43,20 @@ function transform(fileInfo, api) {
 
       return acc;
     }, {});
-  source
+  const transformedDeclarations = source
     .find(j.VariableDeclarator, { init: i => i != null })
     .paths()
     .map(p => {
-      const { init } = p.value;
-      if (init == null) return null;
+      if (!p.scope.isGlobal) return null;
 
+      const { init } = p.value;
       const initCollection = j(init);
       const initSource = initCollection.toSource();
-      if (!initSource.toLowerCase().includes('joi')) return null;
+      if (!initSource.trim().toLowerCase().startsWith('joi.')) return null;
 
       const joiSchemaReferencedItems = initCollection
         .find(j.Identifier, {
-          name: n => {
-            return globalEnumsMappedByIdentifierName[n] != null || globalVariablesMappedByIdentifierName[n] != null;
-          },
+          name: n => globalEnumsMappedByIdentifierName[n] != null || globalVariablesMappedByIdentifierName[n] != null,
         })
         .nodes()
         .map(n => {
@@ -72,7 +70,8 @@ function transform(fileInfo, api) {
       return { path: p, source: joiSource.trim() };
     })
     .filter(v => v != null)
-    .forEach(({ source }) => {
+    .map(({ source, path: p }) => {
+      let zodSchema;
       try {
         global.Joi = Joi;
         global.joi = Joi;
@@ -80,14 +79,22 @@ function transform(fileInfo, api) {
         global.J = Joi;
         global.j = Joi;
 
-        const zodSchema = jsonSchemaToZod(joiToJson(global.eval(ts.transpile(source))));
-        console.log('🐸🐸🐸', zodSchema);
+        zodSchema = jsonSchemaToZod(joiToJson(global.eval(ts.transpile(source))));
       } catch {
-        return;
+        return null;
       }
+
+      return `const ${p.value.id.name} = ${zodSchema}`;
+    })
+    .filter(v => v != null)
+    .join('\n\n');
+  j(transformedDeclarations)
+    .find(j.VariableDeclarator, { init: i => i != null })
+    .forEach(p => {
+      source.findVariableDeclarators(p.value.id.name).replaceWith(p.value);
     });
 
-  return source.toSource();
+  return ['import z from "zod"', source.toSource()].join('\n\n');
 }
 
 export default transform;
