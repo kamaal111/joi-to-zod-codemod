@@ -1,9 +1,36 @@
+/**
+ * @fileoverview Joi to Zod Codemod
+ *
+ * This jscodeshift codemod automatically transforms Joi schema definitions to their equivalent
+ * Zod schemas in JavaScript and TypeScript files. It handles complex scenarios including:
+ *
+ * - Global variable and enum references within schemas
+ * - Nested object and array schemas
+ * - Validation rules and constraints
+ * - Import statement management (removes Joi, adds Zod)
+ *
+ * The transformation process:
+ * 1. Analyzes the AST to find global enums and variables that may be referenced
+ * 2. Identifies Joi schema variable declarations
+ * 3. Extracts schemas with their dependencies for proper evaluation
+ * 4. Converts Joi schemas to JSON Schema, then to Zod using established libraries
+ * 5. Replaces original declarations and updates imports
+ *
+ * Usage: npx jscodeshift -t joi-to-zod.js <file-pattern>
+ *
+ * @author Kamaal Farah
+ * @license https://github.com/kamaal111/joi-to-zod-codemod/blob/main/LICENSE
+ */
+
 import Joi from 'joi';
 import ts from 'typescript';
 import joiToJson from 'joi-to-json';
 import { jsonSchemaToZod } from 'json-schema-to-zod';
 
 /**
+ * Type definitions for jscodeshift API and AST node types used throughout this codemod.
+ * These types provide IntelliSense support and help ensure type safety during development.
+ *
  * @typedef {import('jscodeshift').FileInfo} FileInfo
  * @typedef {import('jscodeshift').API} API
  * @typedef {import('jscodeshift').JSCodeshift} JSCodeshift
@@ -17,9 +44,29 @@ import { jsonSchemaToZod } from 'json-schema-to-zod';
  */
 
 /**
- * @param {FileInfo} fileInfo
- * @param {API} api
- * @returns {string}
+ * Main transformation function that converts Joi schemas to Zod schemas in a JavaScript/TypeScript file.
+ * This is the entry point for the jscodeshift codemod that performs the following operations:
+ * 1. Extracts global enums and variables that may be referenced by Joi schemas
+ * 2. Replaces Joi schema variable declarations with equivalent Zod schemas
+ * 3. Removes the original Joi import statements
+ * 4. Adds a Zod import at the top of the file
+ *
+ * @param {FileInfo} fileInfo - The file information object containing the source code and file path
+ * @param {API} api - The jscodeshift API object providing transformation utilities
+ * @returns {string} The transformed source code with Joi schemas converted to Zod
+ *
+ * @example
+ * ```js
+ * // Input:
+ * import Joi from 'joi';
+ * const schema = Joi.string().required();
+ * ```
+ *
+ * ```js
+ * // Output:
+ * import z from "zod"
+ * const schema = z.string();
+ * ```
  */
 function transform(fileInfo, api) {
   const j = api.jscodeshift;
@@ -34,9 +81,13 @@ function transform(fileInfo, api) {
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {{enums: TSEnumDeclarationCollection, variables: VariableDeclarationCollection}} globalItems
- * @returns {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}}
+ * Creates mapping objects for global enums and variables to enable quick lookups during transformation.
+ * This function organizes global items by their identifier names to facilitate reference resolution
+ * when processing Joi schemas that may reference other global declarations.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {{enums: TSEnumDeclarationCollection, variables: VariableDeclarationCollection}} globalItems - Collections of global enums and variables found in the source
+ * @returns {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} Object containing mappings from identifier names to their AST nodes
  */
 function makeGlobalMappings(j, globalItems) {
   /**
@@ -67,19 +118,31 @@ function makeGlobalMappings(j, globalItems) {
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {Collection} source
- * @returns {Collection}
+ * Removes Joi import declarations from the source code.
+ * This function finds and removes import statements for both '@hapi/joi' and 'joi' packages
+ * as they are no longer needed after transformation to Zod.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to process
+ * @returns {Collection} The collection after removing Joi imports
  */
 function removeJoiImport(j, source) {
   return source.find(j.ImportDeclaration, { source: { value: v => v === '@hapi/joi' || v === 'joi' } }).remove();
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {Collection} source
- * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings
- * @returns {boolean}
+ * Replaces Joi schema variable declarations with their Zod equivalents.
+ * This is the core transformation function that:
+ * 1. Finds all global variable declarations with initializers
+ * 2. Identifies those that contain Joi schemas
+ * 3. Extracts the Joi schema code along with any referenced dependencies
+ * 4. Transforms the Joi schema to a Zod schema
+ * 5. Replaces the original variable declarator with the new Zod version
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to process
+ * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings - Mappings of global identifiers to their AST nodes
+ * @returns {{hasChanges: boolean, collection: Collection}} Object containing transformation results - hasChanges indicates if any schemas were transformed, collection contains the transformed declarations
  */
 function replaceJoiSchemas(j, source, globalMappings) {
   const transformedDeclarations = source
@@ -92,24 +155,34 @@ function replaceJoiSchemas(j, source, globalMappings) {
 
       const zodSchema = transformJoiSchemaStringToZodSchemaString(joiSource);
 
-      return `const ${p.value.id.name} = ${zodSchema}`;
+      return `const ${p.value.id.name} = ${zodSchema};`;
     })
     .filter(v => v != null)
     .join('\n\n');
   let hasChanges = false;
-  j(transformedDeclarations)
-    .find(j.VariableDeclarator)
-    .forEach(p => {
-      source.findVariableDeclarators(p.value.id.name).replaceWith(p.value);
-      hasChanges = true;
-    });
+  const transformedDeclarationsCollection = j(transformedDeclarations);
+  transformedDeclarationsCollection.find(j.VariableDeclarator).forEach(p => {
+    source.findVariableDeclarators(p.value.id.name).replaceWith(p.value);
+    hasChanges = true;
+  });
 
-  return hasChanges;
+  return { hasChanges, collection: transformedDeclarationsCollection };
 }
 
 /**
- * @param {string} joiSchemaString
- * @returns {string | null}
+ * Transforms a Joi schema string into its equivalent Zod schema string.
+ * This function performs the actual schema conversion by:
+ * 1. Setting up global Joi references with various common aliases
+ * 2. Transpiling TypeScript to JavaScript if needed
+ * 3. Evaluating the Joi schema to get a live schema object
+ * 4. Converting the Joi schema to JSON Schema using joi-to-json
+ * 5. Converting the JSON Schema to Zod using json-schema-to-zod
+ *
+ * @param {string} joiSchemaString - The string representation of a Joi schema definition
+ * @returns {string | null} The equivalent Zod schema string, or null if transformation fails
+ *
+ * @note This function uses eval() which can be dangerous. It's used here in a controlled
+ * environment for code transformation purposes only.
  */
 function transformJoiSchemaStringToZodSchemaString(joiSchemaString) {
   try {
@@ -126,10 +199,20 @@ function transformJoiSchemaStringToZodSchemaString(joiSchemaString) {
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {VariableDeclaratorPath} declaratorPath
- * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings
- * @returns {string | null}
+ * Extracts a Joi schema along with all its referenced dependencies from a variable declaration.
+ * This function analyzes a variable declarator to:
+ * 1. Verify it contains a Joi schema (starts with 'joi.')
+ * 2. Find all identifiers referenced within the schema
+ * 3. Resolve those identifiers to their global enum or variable declarations
+ * 4. Combine the referenced items with the main schema into a complete code string
+ *
+ * This ensures that when a Joi schema references other variables or enums, those dependencies
+ * are included in the transformation context so the schema can be properly evaluated.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {VariableDeclaratorPath} declaratorPath - The AST path to a variable declarator
+ * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings - Mappings of global identifiers to their AST nodes
+ * @returns {string | null} Combined source code of the schema and its dependencies, or null if not a Joi schema
  */
 function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
   const { init } = declaratorPath.value;
@@ -141,7 +224,7 @@ function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
 
   /**
    * @param {string} name
-   * @returns {TSEnumDeclaration | VariableDeclarator}
+   * @returns {TSEnumDeclaration | VariableDeclarator | undefined}
    */
   function referenceByName(name) {
     return globalMappings.enums[name]?.value ?? globalMappings.variables[name];
@@ -156,18 +239,27 @@ function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {Collection} source
- * @returns {VariableDeclarationCollection}
+ * Finds and returns all global variable declarations in the source code.
+ * Global variables are those declared at the top level of the file (not inside functions,
+ * classes, or other blocks). These may be referenced by Joi schemas and need to be
+ * available during transformation.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to search
+ * @returns {VariableDeclarationCollection} Collection of global variable declarations
  */
 function getGlobalVariables(j, source) {
   return source.find(j.VariableDeclaration).filter(p => p.scope.isGlobal);
 }
 
 /**
- * @param {JSCodeshift} j
- * @param {Collection} source
- * @returns {TSEnumDeclarationCollection}
+ * Finds and returns all global TypeScript enum declarations in the source code.
+ * Global enums are those declared at the top level of the file and may be referenced
+ * by Joi schemas for validation purposes (e.g., using enum values in .valid() calls).
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to search
+ * @returns {TSEnumDeclarationCollection} Collection of global TypeScript enum declarations
  */
 function getGlobalEnums(j, source) {
   return source.find(j.TSEnumDeclaration).filter(p => p.scope.isGlobal);
