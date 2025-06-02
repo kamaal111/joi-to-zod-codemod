@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.ref }}-ci
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Bootstrap
+        run: just bootstrap-ci
+
+      - name: Run quality checks
+        run: just quality
+
+  test:
+    name: Test
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Bootstrap
+        run: just bootstrap-ci
+
+      - name: Run tests
+        run: just test-cov

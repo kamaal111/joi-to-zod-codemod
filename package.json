@@ -1,5 +1,5 @@
 {
-  "name": "joi-to-zod-codemod",
+  "name": "@kamaalio/joi-to-zod-codemod",
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "build": "pnpm run compile",
+    "build": "pnpm run compile && pnpm run prepack",
     "clean:build": "rm -rf dist tsconfig.tsbuildinfo && pnpm run build",
     "compile": "tsc",
     "type-check": "tsc --noEmit",
@@ -26,7 +26,6 @@
     "format:check": "prettier . --check",
     "prepare": "husky",
     "postpack": "rm -f oclif.manifest.json",
-    "posttest": "pnpm run lint",
     "prepack": "oclif manifest"
   },
   "repository": "kamaal111/joi-to-zod-codemod",
