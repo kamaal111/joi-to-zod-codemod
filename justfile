@@ -62,7 +62,7 @@ publish: clean-build install-modules build-clean
 install-modules:
     #!/bin/zsh
 
-    . ~/.zshrc
+    . ~/.zshrc || true
 
     echo "Y" | pnpm i
 
@@ -77,7 +77,7 @@ post-dev-container-create:
 
 # Bootstrap for CI
 [linux]
-bootstrap-ci: install-zsh bootstrap
+bootstrap-ci: install-zsh enable-corepack install-modules
 
 [private]
 [linux]
@@ -97,7 +97,7 @@ install-node:
         eval "$(fnm env --shell zsh)"
     fi
 
-    . ~/.zshrc
+    . ~/.zshrc || true
 
     fnm completions --shell zsh
     fnm install
@@ -112,6 +112,6 @@ clean-build:
 enable-corepack:
     #!/bin/zsh
 
-    . ~/.zshrc
+    . ~/.zshrc || true
 
     corepack enable
