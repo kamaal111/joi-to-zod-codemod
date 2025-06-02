@@ -26,10 +26,23 @@ function transform(fileInfo, api) {
   const source = j(fileInfo.source);
   const globalEnums = getGlobalEnums(j, source);
   const globalVariables = getGlobalVariables(j, source);
+  const globalMappings = makeGlobalMappings(j, { enums: globalEnums, variables: globalVariables });
+  replaceJoiSchemas(j, source, globalMappings);
+  removeJoiImport(j, source);
+
+  return ['import z from "zod"', source.toSource()].join('\n\n');
+}
+
+/**
+ * @param {JSCodeshift} j
+ * @param {{enums: TSEnumDeclarationCollection, variables: VariableDeclarationCollection}} globalItems
+ * @returns {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}}
+ */
+function makeGlobalMappings(j, globalItems) {
   /**
    * @type {Record<string, TSEnumDeclarationPath>}
    */
-  const globalEnumsMappedByIdentifierName = globalEnums.paths().reduce((acc, p) => {
+  const globalEnumsMappedByIdentifierName = globalItems.enums.paths().reduce((acc, p) => {
     const id = p.value.id;
     j.Identifier.assert(id);
     acc[id.name] = p;
@@ -39,7 +52,7 @@ function transform(fileInfo, api) {
   /**
    * @type {Record<string, VariableDeclarator>}
    */
-  const globalVariablesMappedByIdentifierName = globalVariables.paths().reduce((acc, p) => {
+  const globalVariablesMappedByIdentifierName = globalItems.variables.paths().reduce((acc, p) => {
     for (const declaration of p.value.declarations) {
       const id = declaration.id;
       if (!j.Identifier.check(id)) continue;
@@ -49,12 +62,17 @@ function transform(fileInfo, api) {
 
     return acc;
   }, {});
-  replaceJoiSchemas(j, source, {
-    enums: globalEnumsMappedByIdentifierName,
-    variables: globalVariablesMappedByIdentifierName,
-  });
 
-  return ['import z from "zod"', source.toSource()].join('\n\n');
+  return { enums: globalEnumsMappedByIdentifierName, variables: globalVariablesMappedByIdentifierName };
+}
+
+/**
+ * @param {JSCodeshift} j
+ * @param {Collection} source
+ * @returns {Collection}
+ */
+function removeJoiImport(j, source) {
+  return source.find(j.ImportDeclaration, { source: { value: v => v === '@hapi/joi' || v === 'joi' } }).remove();
 }
 
 /**
@@ -72,12 +90,7 @@ function replaceJoiSchemas(j, source, globalMappings) {
       const joiSource = extractJoiSchemaWithReferences(j, p, globalMappings);
       if (joiSource == null) return null;
 
-      return { path: p, source: joiSource };
-    })
-    .filter(v => v != null)
-    .map(({ source, path: p }) => {
-      const zodSchema = transformJoiSchemaStringToZodSchemaString(source);
-      if (zodSchema == null) return null;
+      const zodSchema = transformJoiSchemaStringToZodSchemaString(joiSource);
 
       return `const ${p.value.id.name} = ${zodSchema}`;
     })
@@ -135,9 +148,7 @@ function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
   }
 
   const joiSchemaReferencedItems = initCollection
-    .find(j.Identifier, {
-      name: n => referenceByName(n) != null,
-    })
+    .find(j.Identifier, { name: n => referenceByName(n) != null })
     .nodes()
     .map(n => j(referenceByName(n.name)).toSource());
 
