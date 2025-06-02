@@ -8,6 +8,7 @@
  * - Nested object and array schemas
  * - Validation rules and constraints
  * - Import statement management (removes Joi, adds Zod)
+ * - Cleanup of unused enums and variables after transformation
  *
  * The transformation process:
  * 1. Analyzes the AST to find global enums and variables that may be referenced
@@ -15,6 +16,8 @@
  * 3. Extracts schemas with their dependencies for proper evaluation
  * 4. Converts Joi schemas to JSON Schema, then to Zod using established libraries
  * 5. Replaces original declarations and updates imports
+ * 6. Removes unused enums that are no longer referenced after transformation
+ * 7. Removes unused variables that are no longer referenced after transformation
  *
  * Usage: npx jscodeshift -t joi-to-zod.js <file-pattern>
  *
@@ -49,7 +52,9 @@ import { jsonSchemaToZod } from 'json-schema-to-zod';
  * 1. Extracts global enums and variables that may be referenced by Joi schemas
  * 2. Replaces Joi schema variable declarations with equivalent Zod schemas
  * 3. Removes the original Joi import statements
- * 4. Adds a Zod import at the top of the file
+ * 4. Removes unused enums that are no longer referenced after transformation
+ * 5. Removes unused variables that are no longer referenced after transformation
+ * 6. Adds a Zod import at the top of the file
  *
  * @param {FileInfo} fileInfo - The file information object containing the source code and file path
  * @param {API} api - The jscodeshift API object providing transformation utilities
@@ -74,8 +79,10 @@ function transform(fileInfo, api) {
   const globalEnums = getGlobalEnums(j, source);
   const globalVariables = getGlobalVariables(j, source);
   const globalMappings = makeGlobalMappings(j, { enums: globalEnums, variables: globalVariables });
-  replaceJoiSchemas(j, source, globalMappings);
+  const schemaResult = replaceJoiSchemas(j, source, globalMappings);
   removeJoiImport(j, source);
+  removeUnusedEnums(j, source);
+  removeUnusedVariables(j, source, globalVariables, schemaResult.transformedSchemaNames);
 
   return ['import z from "zod"', source.toSource()].join('\n\n');
 }
@@ -142,9 +149,10 @@ function removeJoiImport(j, source) {
  * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
  * @param {Collection} source - The source code collection to process
  * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings - Mappings of global identifiers to their AST nodes
- * @returns {{hasChanges: boolean, collection: Collection}} Object containing transformation results - hasChanges indicates if any schemas were transformed, collection contains the transformed declarations
+ * @returns {{hasChanges: boolean, collection: Collection, transformedSchemaNames: Set<string>}} Object containing transformation results - hasChanges indicates if any schemas were transformed, collection contains the transformed declarations, transformedSchemaNames contains the names of transformed schema variables
  */
 function replaceJoiSchemas(j, source, globalMappings) {
+  const transformedSchemaNames = new Set();
   const transformedDeclarations = source
     .find(j.VariableDeclarator, { init: i => i != null })
     .filter(p => p.scope.isGlobal)
@@ -154,6 +162,7 @@ function replaceJoiSchemas(j, source, globalMappings) {
       if (joiSource == null) return null;
 
       const zodSchema = transformJoiSchemaStringToZodSchemaString(joiSource);
+      transformedSchemaNames.add(p.value.id.name);
 
       return `const ${p.value.id.name} = ${zodSchema};`;
     })
@@ -166,7 +175,7 @@ function replaceJoiSchemas(j, source, globalMappings) {
     hasChanges = true;
   });
 
-  return { hasChanges, collection: transformedDeclarationsCollection };
+  return { hasChanges, collection: transformedDeclarationsCollection, transformedSchemaNames };
 }
 
 /**
@@ -263,6 +272,115 @@ function getGlobalVariables(j, source) {
  */
 function getGlobalEnums(j, source) {
   return source.find(j.TSEnumDeclaration).filter(p => p.scope.isGlobal);
+}
+
+/**
+ * Removes unused TypeScript enum declarations from the source code.
+ * After transforming Joi schemas to Zod, some enums that were previously referenced
+ * by Joi schemas may no longer be used anywhere in the code. This function identifies
+ * and removes such unused enums to clean up the code.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} globalEnums - The source code collection to process
+ * @returns {Collection} The collection after removing unused enums
+ */
+function removeUnusedEnums(j, source) {
+  const globalEnums = getGlobalEnums(j, source);
+  const enumNames = new Set();
+  globalEnums.forEach(path => {
+    const id = path.value.id;
+    if (j.Identifier.check(id)) {
+      enumNames.add(id.name);
+    }
+  });
+
+  const usedEnumNames = new Set();
+  source.find(j.Identifier).forEach(path => {
+    if (enumNames.has(path.value.name)) {
+      const parent = path.parent;
+      // Skip if this is the enum declaration itself
+      if (j.TSEnumDeclaration.check(parent.value) && parent.value.id === path.value) return;
+      // Skip if this is an enum member declaration
+      if (j.TSEnumMember.check(parent.value) && parent.value.id === path.value) return;
+      // This is a reference to the enum
+      usedEnumNames.add(path.value.name);
+    }
+  });
+
+  globalEnums.forEach(path => {
+    const id = path.value.id;
+    if (j.Identifier.check(id) && !usedEnumNames.has(id.name)) {
+      j(path).remove();
+    }
+  });
+
+  return source;
+}
+
+/**
+ * Removes unused global variable declarations from the source code.
+ * After transforming Joi schemas to Zod, some variables that were previously referenced
+ * by Joi schemas may no longer be used anywhere in the code. This function identifies
+ * and removes such unused variables to clean up the code.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to process
+ * @param {VariableDeclarationCollection} originalVariables - The original global variables before transformation
+ * @param {Set<string>} transformedSchemaNames - Names of variables that were transformed from Joi to Zod schemas
+ * @returns {Collection} The collection after removing unused variables
+ */
+function removeUnusedVariables(j, source, originalVariables, transformedSchemaNames) {
+  const originalVariableNames = new Set();
+  originalVariables.forEach(path => {
+    path.value.declarations.forEach(declaration => {
+      const id = declaration.id;
+      if (j.Identifier.check(id)) {
+        originalVariableNames.add(id.name);
+      }
+    });
+  });
+
+  const usedOriginalVariableNames = new Set();
+  source.find(j.Identifier).forEach(path => {
+    if (originalVariableNames.has(path.value.name)) {
+      const parent = path.parent;
+      // Skip if this is the variable declaration itself
+      if (j.VariableDeclarator.check(parent.value) && parent.value.id === path.value) return;
+      // This is a reference to the original variable
+      usedOriginalVariableNames.add(path.value.name);
+    }
+  });
+
+  const currentGlobalVariables = getGlobalVariables(j, source);
+  currentGlobalVariables.forEach(path => {
+    const unusedDeclarations = path.value.declarations.filter(declaration => {
+      const id = declaration.id;
+      return (
+        j.Identifier.check(id) &&
+        originalVariableNames.has(id.name) &&
+        !usedOriginalVariableNames.has(id.name) &&
+        !transformedSchemaNames.has(id.name)
+      );
+    });
+
+    if (unusedDeclarations.length === path.value.declarations.length) {
+      // All declarations in this statement are unused original variables, remove the entire statement
+      j(path).remove();
+    } else if (unusedDeclarations.length > 0) {
+      // Some declarations are unused original variables, remove only those
+      path.value.declarations = path.value.declarations.filter(declaration => {
+        const id = declaration.id;
+        return (
+          !j.Identifier.check(id) ||
+          !originalVariableNames.has(id.name) ||
+          usedOriginalVariableNames.has(id.name) ||
+          transformedSchemaNames.has(id.name)
+        );
+      });
+    }
+  });
+
+  return source;
 }
 
 export default transform;
