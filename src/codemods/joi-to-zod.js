@@ -45,7 +45,9 @@ import { jsonSchemaToZod } from 'json-schema-to-zod';
  * @typedef {import('jscodeshift').VariableDeclarator} VariableDeclarator
  * @typedef {import('jscodeshift').ASTPath<import('jscodeshift').VariableDeclarator>} VariableDeclaratorPath
  * @typedef {import('jscodeshift').Collection<import('jscodeshift').VariableDeclaration>} VariableDeclarationCollection
+ * @typedef {import('jscodeshift').ImportDeclaration} ImportDeclaration
  * @typedef {import('jscodeshift').Collection<import('jscodeshift').ImportDeclaration>} ImportDeclarationCollection
+ * @typedef {import('jscodeshift').ASTPath<import('jscodeshift').ImportDeclaration>} ImportDeclarationPath
  */
 
 /**
@@ -78,9 +80,14 @@ import { jsonSchemaToZod } from 'json-schema-to-zod';
 function transform(fileInfo, api) {
   const j = api.jscodeshift;
   const source = j(fileInfo.source);
+  const imports = getImports(j, source);
   const globalEnums = getGlobalEnums(j, source);
   const globalVariables = getGlobalVariables(j, source);
-  const globalMappings = makeGlobalMappings(j, { enums: globalEnums, variables: globalVariables });
+  const globalMappings = makeGlobalMappings(j, {
+    enums: globalEnums,
+    variables: globalVariables,
+    imports,
+  });
   const { transformedSchemaNames } = replaceJoiSchemas(j, source, globalMappings);
   removeUnusedEnums(j, source);
   removeUnusedVariables(j, source, globalVariables, transformedSchemaNames);
@@ -95,8 +102,16 @@ function transform(fileInfo, api) {
  * when processing Joi schemas that may reference other global declarations.
  *
  * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
- * @param {{enums: TSEnumDeclarationCollection, variables: VariableDeclarationCollection}} globalItems - Collections of global enums and variables found in the source
- * @returns {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} Object containing mappings from identifier names to their AST nodes
+ * @param {{
+ *    enums: TSEnumDeclarationCollection,
+ *    variables: VariableDeclarationCollection,
+ *    imports: ImportDeclarationCollection,
+ * }} globalItems - Collections of global enums, variables and imports found in the source
+ * @returns {{
+ *    enums: Record<string, TSEnumDeclarationPath>,
+ *    variables: Record<string, VariableDeclarator>,
+ *    imports: Record<string, ImportDeclarationPath>,
+ * }} Object containing mappings from identifier names to their AST nodes
  */
 function makeGlobalMappings(j, globalItems) {
   const globalEnumsMappedByIdentifierName = globalItems.enums.paths().reduce((acc, p) => {
@@ -119,8 +134,29 @@ function makeGlobalMappings(j, globalItems) {
 
     return acc;
   }, /** @type {Record<string, VariableDeclarator>} */ ({}));
+  const importDeclarationsMappedBySpecifierName = globalItems.imports.paths().reduce((acc, p) => {
+    const specifiers = p.value.specifiers;
+    if (specifiers == null) return acc;
 
-  return { enums: globalEnumsMappedByIdentifierName, variables: globalVariablesMappedByIdentifierName };
+    for (const specifier of specifiers) {
+      const local = specifier.local;
+      if (local == null) continue;
+      if (!j.Identifier.assert(local)) continue;
+
+      const name = local.name.trim();
+      if (name.length === 0) continue;
+
+      acc[name] = p;
+    }
+
+    return acc;
+  }, /** @type {Record<string, ImportDeclarationPath>} */ ({}));
+
+  return {
+    enums: globalEnumsMappedByIdentifierName,
+    variables: globalVariablesMappedByIdentifierName,
+    imports: importDeclarationsMappedBySpecifierName,
+  };
 }
 
 /**
@@ -150,8 +186,16 @@ function getJoiImports(j, source) {
  *
  * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
  * @param {Collection} source - The source code collection to process
- * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings - Mappings of global identifiers to their AST nodes
- * @returns {{hasChanges: boolean, collection: Collection, transformedSchemaNames: Set<string>}} Object containing transformation results - hasChanges indicates if any schemas were transformed, collection contains the transformed declarations, transformedSchemaNames contains the names of transformed schema variables
+ * @param {{
+ *    enums: Record<string, TSEnumDeclarationPath>,
+ *    variables: Record<string, VariableDeclarator>,
+ *    imports: Record<string, ImportDeclarationPath>,
+ * }} globalMappings - Mappings of global identifiers to their AST nodes
+ * @returns {{
+ *    hasChanges: boolean,
+ *    collection: Collection,
+ *    transformedSchemaNames: Set<string>
+ * }} Object containing transformation results - hasChanges indicates if any schemas were transformed, collection contains the transformed declarations, transformedSchemaNames contains the names of transformed schema variables
  */
 function replaceJoiSchemas(j, source, globalMappings) {
   const joiImportsNames = new Set([
@@ -180,10 +224,10 @@ function replaceJoiSchemas(j, source, globalMappings) {
     .filter(p => p.scope.isGlobal)
     .paths()
     .map(p => {
-      const joiSource = extractJoiSchemaWithReferences(j, p, globalMappings);
-      if (joiSource == null) return null;
+      const transformedValue = extractJoiSchemaWithReferences(j, p, globalMappings);
+      if (transformedValue == null) return null;
 
-      const zodSchema = transformJoiSchemaStringToZodSchemaString(joiSource, joiImportsNames);
+      const zodSchema = transformJoiSchemaStringToZodSchemaString(transformedValue.source, joiImportsNames);
       const id = p.value.id;
       if (!j.Identifier.assert(id)) return null;
 
@@ -194,7 +238,7 @@ function replaceJoiSchemas(j, source, globalMappings) {
     .filter(v => v != null)
     .join('\n\n');
   let hasChanges = false;
-  const transformedDeclarationsCollection = j(transformedDeclarations);
+  const transformedDeclarationsCollection = j(transformedDeclarations, {});
   transformedDeclarationsCollection.find(j.VariableDeclarator).forEach(p => {
     const id = p.value.id;
     if (!j.Identifier.assert(id)) return;
@@ -237,45 +281,115 @@ function transformJoiSchemaStringToZodSchemaString(joiSchemaString, joiImportsNa
 }
 
 /**
+ * Removes method calls that reference imported variables from a Joi schema string.
+ * This function processes the schema to remove any method calls that use imported variables
+ * as arguments, effectively cleaning up references that can't be resolved during transformation.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {string} schemaSource - The Joi schema source code as a string
+ * @param {Set<string>} importedVariableNames - Set of imported variable names to remove
+ * @returns {{source: string, removedReferences: string[]}} The cleaned schema source and list of removed references
+ */
+function removeImportedVariableReferences(j, schemaSource, importedVariableNames) {
+  const ast = j(schemaSource);
+  const removedReferences = [];
+
+  ast.find(j.CallExpression).forEach(path => {
+    const { arguments: args } = path.value;
+    if (!args || args.length === 0) return;
+
+    const importedVariableArgs = args.filter(arg => j.Identifier.check(arg) && importedVariableNames.has(arg.name));
+
+    if (importedVariableArgs.length > 0) {
+      const methodName = j.MemberExpression.check(path.value.callee) ? path.value.callee.property.name : 'unknown';
+      const variableNames = importedVariableArgs.map(arg => arg.name);
+      removedReferences.push(`${methodName}(${variableNames.join(', ')})`);
+
+      const callee = path.value.callee;
+      if (j.MemberExpression.check(callee)) {
+        j(path).replaceWith(callee.object);
+      }
+    }
+  });
+
+  return {
+    source: ast.toSource(),
+    removedReferences,
+  };
+}
+
+/**
  * Extracts a Joi schema along with all its referenced dependencies from a variable declaration.
  * This function analyzes a variable declarator to:
  * 1. Verify it contains a Joi schema (starts with 'joi.')
  * 2. Find all identifiers referenced within the schema
  * 3. Resolve those identifiers to their global enum or variable declarations
- * 4. Combine the referenced items with the main schema into a complete code string
+ * 4. Remove any references to imported variables from the schema
+ * 5. Combine the referenced items with the main schema into a complete code string
  *
  * This ensures that when a Joi schema references other variables or enums, those dependencies
- * are included in the transformation context so the schema can be properly evaluated.
+ * are included in the transformation context, while imported variable references are removed.
  *
  * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
  * @param {VariableDeclaratorPath} declaratorPath - The AST path to a variable declarator
- * @param {{enums: Record<string, TSEnumDeclarationPath>, variables: Record<string, VariableDeclarator>}} globalMappings - Mappings of global identifiers to their AST nodes
- * @returns {string | null} Combined source code of the schema and its dependencies, or null if not a Joi schema
+ * @param {{
+ *    enums: Record<string, TSEnumDeclarationPath>,
+ *    variables: Record<string, VariableDeclarator>,
+ *    imports: Record<string, ImportDeclarationPath>,
+ * }} globalMappings - Mappings of global identifiers to their AST nodes
+ * @returns {{source: string} | null} Combined source code of the schema and its dependencies, or null if not a Joi schema
  */
 function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
   const { init } = declaratorPath.value;
   if (init == null) return null;
 
   const initCollection = j(init);
-  const initSource = initCollection.toSource();
+  let initSource = initCollection.toSource();
   if (!initSource.trim().toLowerCase().startsWith('joi.')) return null;
 
   /**
    * @param {string} name
-   * @returns {TSEnumDeclaration | VariableDeclarator | undefined}
+   * @returns {TSEnumDeclaration | VariableDeclarator  | undefined}
    */
   function referenceByName(name) {
     return globalMappings.enums[name]?.value ?? globalMappings.variables[name];
   }
 
-  const joiSchemaReferencedItems = initCollection
-    .find(j.Identifier, { name: n => referenceByName(n) != null })
-    .nodes()
-    .map(n => referenceByName(n.name))
-    .filter(r => r != null)
-    .map(r => j(r).toSource());
+  /**
+   * @param {string} name
+   * @returns {ImportDeclaration  | undefined}
+   */
+  function importByName(name) {
+    return globalMappings.imports[name]?.value;
+  }
 
-  return joiSchemaReferencedItems.concat(initSource).join('\n\n').trim();
+  const importedVariableNames = new Set();
+  const joiSchemaReferencedItems = [];
+
+  initCollection
+    .find(j.Identifier, { name: n => referenceByName(n) != null || importByName(n) != null })
+    .nodes()
+    .forEach(n => {
+      const reference = referenceByName(n.name);
+      if (reference != null) {
+        joiSchemaReferencedItems.push(j(reference).toSource());
+        return;
+      }
+
+      const importReference = importByName(n.name);
+      if (importReference != null && n.name.toLowerCase() !== 'joi') {
+        importedVariableNames.add(n.name);
+      }
+    });
+
+  if (importedVariableNames.size > 0) {
+    const result = removeImportedVariableReferences(j, initSource, importedVariableNames);
+    initSource = result.source;
+  }
+
+  return {
+    source: joiSchemaReferencedItems.concat(initSource).join('\n\n').trim(),
+  };
 }
 
 /**
@@ -290,6 +404,19 @@ function extractJoiSchemaWithReferences(j, declaratorPath, globalMappings) {
  */
 function getGlobalVariables(j, source) {
   return source.find(j.VariableDeclaration).filter(p => p.scope.isGlobal);
+}
+
+/**
+ * Finds and returns all import declarations in the source code.
+ * This function locates all import statements, regardless of source, and is used to gather
+ * a collection of all imports present in the file for further analysis or transformation.
+ *
+ * @param {JSCodeshift} j - The jscodeshift instance for AST manipulation
+ * @param {Collection} source - The source code collection to search
+ * @returns {ImportDeclarationCollection} Collection of all import declarations
+ */
+function getImports(j, source) {
+  return source.find(j.ImportDeclaration).filter(p => p.scope.isGlobal);
 }
 
 /**

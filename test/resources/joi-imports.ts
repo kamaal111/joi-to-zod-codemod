@@ -1,5 +1,7 @@
 import Joi from 'joi';
 
+import { MAX_YEAR } from './other-source';
+
 const MINIMUM_YEAR = 1970;
 
 enum Job {
@@ -10,7 +12,7 @@ enum Job {
 
 export const employee = Joi.object().keys({
   name: Joi.string().alphanum().min(3).max(30).required(),
-  birthyear: Joi.number().integer().min(MINIMUM_YEAR).max(2013),
+  birthyear: Joi.number().integer().min(MINIMUM_YEAR).max(MAX_YEAR),
   job: Joi.string().valid(...Object.values(Job)),
   nickname: Joi.string()
     .required()
