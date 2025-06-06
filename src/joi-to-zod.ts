@@ -63,6 +63,7 @@ export async function joiToZodTransformer(sourcePath: string, config?: { dryRun?
     print: log,
     parser: JOI_TO_ZOD_CODEMOD_PARSER,
     verbose: 1,
+    cpus: 1,
   });
   console.log('result', result);
 }

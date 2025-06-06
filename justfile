@@ -1,7 +1,9 @@
 set export
 
-PNR := "pnpm run"
-PNX := "pnpm exec"
+PN := "pnpm"
+PNR := PN + " run"
+PNX := PN + " exec"
+TSX := PNX + " tsx"
 
 # List available commands
 default:
@@ -51,10 +53,10 @@ preview:
     node ./bin/dev.mjs run -d -g '["!node_modules", "!dist", "!src/codemods"]'
 
 # Publish package to NPM
-publish: clean-build install-modules build-clean
+publish: install-modules build-clean
     #!/bin/zsh
 
-    {{ PNX }} tsx scripts/publish-package-json.ts "${VERSION:-null}"
+    {{ TSX }} scripts/publish-package-json.ts "${VERSION:-null}"
 
     pnpm publish --access public --no-git-checks
 
@@ -90,23 +92,11 @@ install-node:
     #!/bin/zsh
 
     curl -fsSL https://fnm.vercel.app/install | bash
-    FNM_PATH="~/.local/share/fnm"
-    if [ -d "$FNM_PATH" ]
-    then
-        export PATH="$FNM_PATH:$PATH"
-        eval "$(fnm env --shell zsh)"
-    fi
 
     . ~/.zshrc || true
 
     fnm completions --shell zsh
     fnm install
-
-[private]
-clean-build:
-    #!/bin/zsh
-
-    rm -rf ./dist
 
 [private]
 enable-corepack:

@@ -92,8 +92,9 @@ function transform(fileInfo, api) {
   removeUnusedEnums(j, source);
   removeUnusedVariables(j, source, globalVariables, transformedSchemaNames);
   getJoiImports(j, source).remove();
+  const finalSource = ['import z from "zod"', source.toSource()].join('\n\n');
 
-  return ['import z from "zod"', source.toSource()].join('\n\n');
+  return finalSource;
 }
 
 /**
