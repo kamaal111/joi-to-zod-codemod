@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Joi check to Zod enum 1`] = `
+"import Joi from 'joi';
+
+enum Job {
+  Developer = 'developer',
+  DevOps = 'devops',
+  Designer = 'designer',
+}
+
+export const employee = Joi.object().keys({
+  job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]),
+});
+"
+`;
