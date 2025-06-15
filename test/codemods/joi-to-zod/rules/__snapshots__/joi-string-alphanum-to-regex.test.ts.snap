@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Joi alphanum to Zod regex 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().regex(/^[a-z0-9]+$/).min(3).max(30).required(),
+});
+"
+`;

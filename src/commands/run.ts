@@ -1,7 +1,9 @@
 import { Args, Command, Flags } from '@oclif/core';
 
-import { joiToZod } from '../joi-to-zod.js';
-import { DEFAULT_DRY_RUN_OPTION, DEFAULT_GLOB, DEFAULT_LOG_OPTION, DEFAULT_PARALLEL_OPTION } from '../constants.js';
+import { DEFAULT_DRY_RUN_OPTION, DEFAULT_IGNORES, DEFAULT_NO_LOG_OPTION, DEFAULT_SEARCHES } from '../constants.js';
+import parseAndTransformFiles from '../codemods/utils/parse-and-transform-files.js';
+import joiToZodTransformer, { JOI_TO_ZOD_LANGUAGE } from '../codemods/joi-to-zod/index.js';
+import { compactMap } from '../utils/arrays.js';
 
 class Run extends Command {
   static override args = {
@@ -15,50 +17,66 @@ class Run extends Command {
       charAliases: ['d', 'D'],
       description: 'When enabled the transformer will not write to the file but print what would have changed instead',
     }),
-    glob: Flags.string({
-      default: JSON.stringify(DEFAULT_GLOB),
-      charAliases: ['g', 'G'],
-      description: 'Directories or files to ignore or include in glob form',
+    ignores: Flags.string({
+      default: JSON.stringify(DEFAULT_IGNORES),
+      charAliases: ['i', 'I'],
+      description: 'Directories or files to ignore',
     }),
-    parallel: Flags.boolean({
-      default: DEFAULT_PARALLEL_OPTION,
-      charAliases: ['p', 'P'],
-      description: 'When disabled the transformers will run sequentially',
+    search: Flags.string({
+      default: JSON.stringify(DEFAULT_SEARCHES),
+      charAliases: ['s', 'S'],
+      description: 'Directories or files to include',
     }),
-    log: Flags.boolean({
-      default: DEFAULT_LOG_OPTION,
-      charAliases: ['l', 'L'],
-      description: 'When disabled no logs will be displayed',
+    ['no-log']: Flags.boolean({
+      default: DEFAULT_NO_LOG_OPTION,
+      charAliases: ['n', 'N'],
+      description: 'When enabled no logs will be displayed',
     }),
   };
 
   public async run(): Promise<void> {
     const start = performance.now();
-    const { args, flags } = await this.parse(Run);
+    const { flags, args } = await this.parse(Run);
 
-    await joiToZod(args.path, {
-      dryRun: flags.dry,
-      glob: this.parseGlob(flags.glob),
-      parallel: flags.parallel,
-      log: flags.log,
-    });
+    await parseAndTransformFiles(
+      this.parseGlobs(flags.ignores, flags.search),
+      JOI_TO_ZOD_LANGUAGE,
+      { dryRun: flags.dry, noLog: flags['no-log'], cwd: args.path },
+      joiToZodTransformer,
+    );
 
-    const timeInSeconds = ((performance.now() - start) / 1000).toFixed(2);
-    if (flags.log) {
-      console.log(`Transformed files successfully in ${timeInSeconds} seconds ✨`);
+    const end = performance.now();
+    if (!flags.noLog) {
+      console.log(`✨ transformation took ${(end - start).toFixed(2)} milliseconds`);
     }
   }
 
-  private parseGlob = (rawIgnores: string): Array<string> => {
-    let parsedIgnores: unknown;
-    try {
-      parsedIgnores = JSON.parse(rawIgnores);
-    } catch {
-      return [];
-    }
+  private parseGlobs = (
+    rawIgnores: string,
+    rawSearches: string,
+  ): { searches: Array<string>; ignores: Array<string> } => {
+    return { searches: this.mapGlob(rawSearches), ignores: this.mapGlob(rawIgnores) };
+  };
 
-    if (!Array.isArray(parsedIgnores)) return [];
-    return parsedIgnores.filter(ignore => typeof ignore === 'string');
+  private parseGlob = (rawGlob: string): Array<unknown> => {
+    try {
+      const parsedGlob = JSON.parse(rawGlob);
+      if (!Array.isArray(parsedGlob)) return [parsedGlob];
+      return parsedGlob;
+    } catch {
+      return [rawGlob];
+    }
+  };
+
+  private mapGlob = (rawGlob: string): Array<string> => {
+    return compactMap(this.parseGlob(rawGlob), glob => {
+      if (typeof glob !== 'string') return null;
+
+      const trimmed = glob.trim();
+      if (trimmed.length === 0) return null;
+
+      return trimmed;
+    });
   };
 }
 
