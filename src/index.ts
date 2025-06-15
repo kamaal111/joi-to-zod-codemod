@@ -1,4 +1,3 @@
 export { run } from '@oclif/core';
-export { joiToZod, joiToZodTransformer, type JoiToZodReport } from './joi-to-zod.js';
-export { default as joiToZodJscodeshiftTransformer } from './codemods/joi-to-zod.js';
-export { findSourcePathsWithJoi } from './utils/source-finding.js';
+export { default as joiToZodTransformer, joiToZod } from './codemods/joi-to-zod/index.js';
+export type { Modifications } from './codemods/types.js';
