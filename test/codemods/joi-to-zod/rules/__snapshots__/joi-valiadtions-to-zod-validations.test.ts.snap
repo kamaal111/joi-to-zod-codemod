@@ -1,0 +1,37 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Joi alphanum to Zod regex 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().regex(/^[a-z0-9]+$/).min(3).max(30).required(),
+});
+"
+`;
+
+exports[`Joi description to Zod describe 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  nickname: Joi.string()
+    .required()
+    .min(3)
+    .max(20)
+    .describe('Nickname')
+    .regex(/^[a-z]+$/, { name: 'alpha', invert: true }),
+});
+"
+`;
+
+exports[`Joi integer to Zod int 1`] = `
+"import Joi from 'joi';
+
+import { MAX_YEAR } from './other-source';
+
+const MINIMUM_YEAR = 1970;
+
+export const employee = Joi.object().keys({
+  birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR),
+});
+"
+`;
