@@ -57,6 +57,13 @@ const url = Joi.string().optional();
 "
 `;
 
+exports[`Joi unknown to Zod passthrough 1`] = `
+"import Joi from 'joi';
+
+const url = Joi.string().optional().passthrough();
+"
+`;
+
 exports[`Joi uri to Zod url 1`] = `
 "import Joi from 'joi';
 

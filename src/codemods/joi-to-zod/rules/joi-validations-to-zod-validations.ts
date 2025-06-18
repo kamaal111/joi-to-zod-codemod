@@ -17,7 +17,7 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'description($ARGS)', zod: 'describe($ARGS)' },
     { joi: 'allow(null)', zod: 'nullable()' },
     { joi: 'required(false)', zod: 'optional()' },
-    // { joi: 'unknown(true)', zod: 'passthrough()' }, // Needs to be covered
+    { joi: 'unknown(true)', zod: 'passthrough()' },
     // { joi: 'unknown(false)', zod: 'strict()' }, // Needs to be covered
   ],
   number: [
@@ -29,20 +29,21 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
 };
 
 async function joiValidationsToZodValidations(modifications: Modifications): Promise<Modifications> {
-  const root = modifications.ast.root();
-  const edits = toEntries(JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING)
-    .map(([primitive, mappings]) => {
-      return mappings.map(({ joi, zod }) => {
-        return replaceJoiValidationWithZodEdits(root, {
-          primitive,
-          validationTargetKey: joi,
-          zodValidation: zod,
-        });
-      });
-    })
-    .flat(2);
+  let committed = modifications;
+  const mappings = toEntries(JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING).flatMap(([primitive, values]) => {
+    return values.map(({ joi, zod }) => ({ primitive, joi, zod }));
+  });
+  for (const { primitive, joi, zod } of mappings) {
+    const root = committed.ast.root();
+    const edits = replaceJoiValidationWithZodEdits(root, {
+      primitive,
+      validationTargetKey: joi,
+      zodValidation: zod,
+    });
+    committed = await commitEditModifications(edits, committed);
+  }
 
-  return commitEditModifications(edits, modifications);
+  return committed;
 }
 
 export default joiValidationsToZodValidations;

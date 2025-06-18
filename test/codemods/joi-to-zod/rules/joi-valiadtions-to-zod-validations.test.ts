@@ -164,3 +164,21 @@ const url = Joi.string().required(false);
   expect(updatedSource).not.contain('required');
   expect(updatedSource).contain('optional()');
 });
+
+test('Joi unknown to Zod passthrough', async () => {
+  const source = `
+import Joi from 'joi';
+
+const url = Joi.string().required(false).unknown(true);
+`;
+
+  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(2);
+  expect(modifications.history.length).toBe(3);
+  expect(updatedSource).not.contain('unknown');
+  expect(updatedSource).contain('passthrough()');
+});
