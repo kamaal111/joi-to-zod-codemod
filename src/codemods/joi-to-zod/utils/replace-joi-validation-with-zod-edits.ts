@@ -61,13 +61,16 @@ function replaceJoiValidationWithZodEdits(
 
                 return { ...acc, [meta]: foundArgument };
               }, {});
+            const metaMappingEntries = Object.entries(metaMapping);
             finalZodReplacementArgs = zodReplacementArgs
               .split(',')
               .map(arg => {
-                const trimmed = arg.trim();
-                if (!trimmed.startsWith('$')) return arg;
+                let updatedArg = arg;
+                metaMappingEntries.forEach(([key, value]) => {
+                  updatedArg = updatedArg.replace(new RegExp(key.replace('$', '\\$'), 'g'), value);
+                });
 
-                return metaMapping[trimmed] ?? arg;
+                return updatedArg;
               })
               .join(',');
           }

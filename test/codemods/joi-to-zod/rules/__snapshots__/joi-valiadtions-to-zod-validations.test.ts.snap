@@ -50,10 +50,32 @@ export const employee = Joi.object().keys({
 "
 `;
 
+exports[`Joi no unknowns to Zod strict 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().url(),
+}).nullable().strict();
+"
+`;
+
 exports[`Joi not required to Zod optional 1`] = `
 "import Joi from 'joi';
 
 const url = Joi.string().optional();
+"
+`;
+
+exports[`Joi precision to Zod step 1`] = `
+"import Joi from 'joi';
+
+import { MAX_YEAR } from './other-source';
+
+const MINIMUM_YEAR = 1970;
+
+export const employee = Joi.object().keys({
+  birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR).step(1 / 10**3),
+});
 "
 `;
 

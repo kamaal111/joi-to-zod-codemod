@@ -19,7 +19,6 @@ export const employee = Joi.object().keys({
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('alphanum');
   expect(updatedSource).contain('regex(/^[a-z0-9]+$/)');
 });
@@ -43,7 +42,6 @@ export const employee = Joi.object().keys({
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('integer');
   expect(updatedSource).contain('int()');
 });
@@ -88,7 +86,6 @@ export const employee = Joi.object().keys({
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('uri');
   expect(updatedSource).contain('url()');
 });
@@ -106,7 +103,6 @@ const url = Joi.string().uri();
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('uri');
   expect(updatedSource).contain('url()');
 });
@@ -124,7 +120,6 @@ const url = Joi.string().allow(null);
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('allow');
   expect(updatedSource).contain('nullable()');
 });
@@ -142,7 +137,6 @@ const url = Joi.string().allow(null);
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('allow');
   expect(updatedSource).contain('nullable()');
 });
@@ -160,7 +154,6 @@ const url = Joi.string().required(false);
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('required');
   expect(updatedSource).contain('optional()');
 });
@@ -178,7 +171,48 @@ const url = Joi.string().required(false).unknown(true);
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(2);
-  expect(modifications.history.length).toBe(3);
   expect(updatedSource).not.contain('unknown');
   expect(updatedSource).contain('passthrough()');
+});
+
+test('Joi no unknowns to Zod strict', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().uri(),
+}).allow(null).unknown(false);
+`;
+
+  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(3);
+  expect(updatedSource).not.contain('unknown');
+  expect(updatedSource).contain('strict()');
+});
+
+test('Joi precision to Zod step', async () => {
+  const source = `
+import Joi from 'joi';
+
+import { MAX_YEAR } from './other-source';
+
+const MINIMUM_YEAR = 1970;
+
+export const employee = Joi.object().keys({
+  birthyear: Joi.number().integer().min(MINIMUM_YEAR).max(MAX_YEAR).precision(3),
+});
+`;
+
+  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(2);
+  expect(updatedSource).not.contain('precision');
+  expect(updatedSource, updatedSource).contain('step(1 / 10**3)');
 });

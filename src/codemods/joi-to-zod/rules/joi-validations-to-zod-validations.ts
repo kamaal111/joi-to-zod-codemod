@@ -18,13 +18,13 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'allow(null)', zod: 'nullable()' },
     { joi: 'required(false)', zod: 'optional()' },
     { joi: 'unknown(true)', zod: 'passthrough()' },
-    // { joi: 'unknown(false)', zod: 'strict()' }, // Needs to be covered
+    { joi: 'unknown(false)', zod: 'strict()' },
   ],
   number: [
     { joi: 'integer()', zod: 'int()' },
     { joi: 'greater($ARGS)', zod: 'gt($ARGS)' },
     { joi: 'less($ARGS)', zod: 'lt($ARGS)' },
-    // { joi: 'precision($ARGS)', zod: 'step(1 / 10**$ARGS)' }, // Needs to be covered
+    { joi: 'precision($ARGS)', zod: 'step(1 / 10**$ARGS)' },
   ],
 };
 
