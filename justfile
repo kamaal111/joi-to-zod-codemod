@@ -21,6 +21,10 @@ test-watch:
 test-cov:
     {{ PNR }} test:cov
 
+# Test package and update snapshots
+test-u:
+    {{ PNR }} test:u
+
 # Build package
 build:
     {{ PNR }} build

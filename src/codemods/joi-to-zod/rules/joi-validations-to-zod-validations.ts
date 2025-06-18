@@ -16,7 +16,7 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
   '*': [
     { joi: 'description($ARGS)', zod: 'describe($ARGS)' },
     { joi: 'allow(null)', zod: 'nullable()' },
-    // { joi: 'required(false)', zod: 'optional()' }, // Needs to be covered
+    { joi: 'required(false)', zod: 'optional()' },
     // { joi: 'unknown(true)', zod: 'passthrough()' }, // Needs to be covered
     // { joi: 'unknown(false)', zod: 'strict()' }, // Needs to be covered
   ],

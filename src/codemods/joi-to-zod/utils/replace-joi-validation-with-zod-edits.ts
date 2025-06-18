@@ -7,6 +7,7 @@ import extractNameFromCallExpression from '../../utils/extract-name-from-call-ex
 import getJoiIdentifierName from './get-joi-identifier-name.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
 import type { Optional } from '../../../utils/type-utils.js';
+import { compactMap } from '../../../utils/arrays.js';
 
 function replaceJoiValidationWithZodEdits(
   root: SgNode<TypesMap, Kinds<TypesMap>>,
@@ -27,66 +28,69 @@ function replaceJoiValidationWithZodEdits(
   const zodReplacementComponents = zodReplacement.split('(');
   const zodReplacementName = zodReplacementComponents[0];
   const zodReplacementArgs = zodReplacementComponents.slice(1).join('').slice(undefined, -1);
+  const joiProperties = getJoiProperties(root, {
+    primitive: params.primitive,
+    validationName: params.validationTargetKey,
+  });
 
-  return getJoiProperties(root, { primitive: params.primitive, validationName: params.validationTargetKey }).map(
-    callExpression => {
-      const callExpressionText = callExpression.text();
+  return compactMap(joiProperties, callExpression => {
+    const callExpressionText = callExpression.text();
 
-      let finalValidationTargetKeyArgs = validationTargetKeyArgs;
-      let finalZodReplacementArgs = zodReplacementArgs;
-      if (validationTargetKeyArgsIsMeta) {
-        const argumentsComponents = callExpressionText
-          .split('.')
-          .find(value => value.trim().startsWith(validationTargetKeyName))
-          ?.split('(');
-        if (argumentsComponents != null) {
-          const foundArguments = argumentsComponents[1]?.split(')')[0];
-          if (foundArguments != null) {
-            if (validationTargetKeyArgs === zodReplacementArgs) {
-              finalZodReplacementArgs = foundArguments;
-            } else {
-              const foundArgumentsComponents = foundArguments.split(',').map(arg => arg.trim());
-              const metaMapping = validationTargetKeyArgs
-                ?.split(',')
-                .map(arg => arg.trim())
-                .reduce<Record<string, string>>((acc, meta, index) => {
-                  if (!meta.startsWith('$')) return acc;
+    let finalValidationTargetKeyArgs = validationTargetKeyArgs;
+    let finalZodReplacementArgs = zodReplacementArgs;
+    if (validationTargetKeyArgsIsMeta) {
+      const argumentsComponents = callExpressionText
+        .split('.')
+        .find(value => value.trim().startsWith(validationTargetKeyName))
+        ?.split('(');
+      if (argumentsComponents != null) {
+        const foundArguments = argumentsComponents[1]?.split(')')[0];
+        if (foundArguments != null) {
+          if (validationTargetKeyArgs === zodReplacementArgs) {
+            finalZodReplacementArgs = foundArguments;
+          } else {
+            const foundArgumentsComponents = foundArguments.split(',').map(arg => arg.trim());
+            const metaMapping = validationTargetKeyArgs
+              ?.split(',')
+              .map(arg => arg.trim())
+              .reduce<Record<string, string>>((acc, meta, index) => {
+                if (!meta.startsWith('$')) return acc;
 
-                  const foundArgument = foundArgumentsComponents[index];
-                  if (foundArgument == null) return acc;
+                const foundArgument = foundArgumentsComponents[index];
+                if (foundArgument == null) return acc;
 
-                  return { ...acc, [meta]: foundArgument };
-                }, {});
-              finalZodReplacementArgs = zodReplacementArgs
-                .split(',')
-                .map(arg => {
-                  const trimmed = arg.trim();
-                  if (!trimmed.startsWith('$')) return arg;
+                return { ...acc, [meta]: foundArgument };
+              }, {});
+            finalZodReplacementArgs = zodReplacementArgs
+              .split(',')
+              .map(arg => {
+                const trimmed = arg.trim();
+                if (!trimmed.startsWith('$')) return arg;
 
-                  return metaMapping[trimmed] ?? arg;
-                })
-                .join(',');
-            }
-
-            finalValidationTargetKeyArgs = foundArguments;
+                return metaMapping[trimmed] ?? arg;
+              })
+              .join(',');
           }
+
+          finalValidationTargetKeyArgs = foundArguments;
         }
       }
-      const finalValidationTargetKey = new RegExp(
-        `.${validationTargetKeyName}\\(${finalValidationTargetKeyArgs}\\)`,
-        'g',
-      );
-      const finalZodReplacement = shouldRemoveValidation ? '' : `${zodReplacementName}(${finalZodReplacementArgs})`;
-      const replacement = callExpressionText
-        .replace(finalValidationTargetKey, finalZodReplacement)
-        .split('\n')
-        .filter(value => value.trim().length > 0)
-        .join('\n')
-        .trim();
+    }
+    const finalValidationTargetKey = new RegExp(
+      `.${validationTargetKeyName}\\(${finalValidationTargetKeyArgs}\\)`,
+      'g',
+    );
+    const finalZodReplacement = shouldRemoveValidation ? '' : `${zodReplacementName}(${finalZodReplacementArgs})`;
+    const replacement = callExpressionText
+      .replace(finalValidationTargetKey, finalZodReplacement)
+      .split('\n')
+      .filter(value => value.trim().length > 0)
+      .join('\n')
+      .trim();
+    if (replacement === callExpressionText) return null;
 
-      return callExpression.replace(replacement);
-    },
-  );
+    return callExpression.replace(replacement);
+  });
 }
 
 export default replaceJoiValidationWithZodEdits;

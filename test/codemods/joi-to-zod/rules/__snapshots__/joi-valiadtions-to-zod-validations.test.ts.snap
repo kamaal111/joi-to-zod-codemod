@@ -1,5 +1,19 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Joi allow null to Zod nullable 1`] = `
+"import Joi from 'joi';
+
+const url = Joi.string().nullable();
+"
+`;
+
+exports[`Joi allow null to Zod optional 1`] = `
+"import Joi from 'joi';
+
+const url = Joi.string().nullable();
+"
+`;
+
 exports[`Joi alphanum to Zod regex 1`] = `
 "import Joi from 'joi';
 
@@ -33,5 +47,28 @@ const MINIMUM_YEAR = 1970;
 export const employee = Joi.object().keys({
   birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR),
 });
+"
+`;
+
+exports[`Joi not required to Zod optional 1`] = `
+"import Joi from 'joi';
+
+const url = Joi.string().optional();
+"
+`;
+
+exports[`Joi uri to Zod url 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  url: Joi.string().url(),
+});
+"
+`;
+
+exports[`Joi uri to Zod url on constant 1`] = `
+"import Joi from 'joi';
+
+const url = Joi.string().url();
 "
 `;

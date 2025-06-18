@@ -5,6 +5,7 @@ import type { JoiPrimitives } from '../types.js';
 import traverseUp from '../../utils/traverse-up.js';
 import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
 import getJoiIdentifierName from './get-joi-identifier-name.js';
+import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
 
 function getJoiProperties(
   root: SgNode<TypesMap, Kinds<TypesMap>>,
@@ -17,18 +18,40 @@ function getJoiProperties(
   if (propertyIdentifiers.length === 0) return [];
 
   const validationName = extractNameFromCallExpression(params.validationName);
+  const validationArgs = extractArgsFromCallExpression(params.validationName);
+  const validationArgsIsMeta = validationArgs?.includes('$') ?? false;
   if (validationName != null) {
-    propertyIdentifiers = propertyIdentifiers.filter(
-      propertyIdentifier => propertyIdentifier.text() === validationName,
-    );
+    propertyIdentifiers = propertyIdentifiers.filter(propertyIdentifier => {
+      const sameSignature =
+        traverseUp(propertyIdentifier, node => node.kind() === 'call_expression')
+          ?.text()
+          .split('.')
+          .reverse()
+          .find(transformation => {
+            if (extractNameFromCallExpression(transformation) !== validationName) return false;
+
+            const transformationArgs = extractArgsFromCallExpression(transformation);
+            if (transformationArgs == null && validationArgs == null) return true;
+
+            const transformationArgsIsMeta = transformationArgs?.includes('$') ?? false;
+            if (transformationArgsIsMeta || validationArgsIsMeta) return true;
+
+            return true;
+          }) != null;
+
+      return propertyIdentifier.text() === validationName && sameSignature;
+    });
   }
 
   return propertyIdentifiers.reduce<{ results: Array<SgNode<TypesMap, Kinds<TypesMap>>>; checkedIn: Set<string> }>(
     (acc, propertyIdentifier) => {
-      const pairNode = traverseUp(propertyIdentifier, node => node.kind() === 'pair');
-      if (pairNode == null) return acc;
+      const pairOrVariableDeclaratorNode = traverseUp(
+        propertyIdentifier,
+        node => node.kind() === 'pair' || node.kind() === 'variable_declarator',
+      );
+      if (pairOrVariableDeclaratorNode == null) return acc;
 
-      const memberExpression = pairNode.find({ rule: { kind: 'member_expression' } });
+      const memberExpression = pairOrVariableDeclaratorNode.find({ rule: { kind: 'member_expression' } });
       if (memberExpression == null) return acc;
 
       const memberExpressionText = memberExpression.text().trim();

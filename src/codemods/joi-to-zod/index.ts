@@ -37,17 +37,23 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiRemoveImport);
 }
 
-export async function joiToZod(content: SgRoot<TypesMap> | string): Promise<SgRoot<TypesMap>> {
-  const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
-  const modifications = await joiToZodModifications({
+export function makeJoiToZodInitialModification(
+  ast: SgRoot<TypesMap>,
+  filename: Optional<string> = null,
+): Modifications {
+  return {
     lang: JOI_TO_ZOD_LANGUAGE,
     report: { changesApplied: 0 },
     ast,
-    filename: null,
+    filename,
     history: [ast],
-  });
+  };
+}
 
-  return modifications.ast;
+export async function joiToZod(content: SgRoot<TypesMap> | string): Promise<SgRoot<TypesMap>> {
+  const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
+
+  return joiToZodModifications(makeJoiToZodInitialModification(ast)).then(modifications => modifications.ast);
 }
 
 async function joiToZodTransformer(
@@ -56,13 +62,7 @@ async function joiToZodTransformer(
 ): Promise<Modifications> {
   const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
 
-  return joiToZodModifications({
-    lang: JOI_TO_ZOD_LANGUAGE,
-    report: { changesApplied: 0 },
-    ast,
-    filename,
-    history: [ast],
-  });
+  return joiToZodModifications(makeJoiToZodInitialModification(ast, filename));
 }
 
 export default joiToZodTransformer;
