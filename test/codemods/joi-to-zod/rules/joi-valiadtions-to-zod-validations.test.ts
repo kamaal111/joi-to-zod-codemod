@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 
 import joiValidationsToZodValidations from '../../../../src/codemods/joi-to-zod/rules/joi-validations-to-zod-validations';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod/index';
-import { testSignalInvalid } from '../../../test-utils/detect-theory';
+import { invalidRuleSignal } from '../../../test-utils/detect-theory';
 
 test('Joi alphanum to Zod regex', async () => {
   const source = `
@@ -13,7 +13,7 @@ export const employee = Joi.object().keys({
 });
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -36,7 +36,7 @@ export const employee = Joi.object().keys({
 });
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -60,7 +60,7 @@ export const employee = Joi.object().keys({
 });
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -80,7 +80,7 @@ export const employee = Joi.object().keys({
 });
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -97,7 +97,7 @@ import Joi from 'joi';
 const url = Joi.string().uri();
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -114,7 +114,7 @@ import Joi from 'joi';
 const url = Joi.string().allow(null);
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -131,7 +131,7 @@ import Joi from 'joi';
 const url = Joi.string().allow(null);
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -148,7 +148,7 @@ import Joi from 'joi';
 const url = Joi.string().required(false);
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -165,7 +165,7 @@ import Joi from 'joi';
 const url = Joi.string().required(false).unknown(true);
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -184,7 +184,7 @@ export const employee = Joi.object().keys({
 }).allow(null).unknown(false);
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
@@ -207,7 +207,7 @@ export const employee = Joi.object().keys({
 });
 `;
 
-  const modifications = await testSignalInvalid(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();

@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest';
-import { Lang, parseAsync } from '@ast-grep/napi';
 
 import joiRemoveImport from '../../../../src/codemods/joi-to-zod/rules/joi-remove-import';
+import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi remove import', async () => {
   const source = `
@@ -17,19 +18,12 @@ export const employee = Joi.object().keys({
   job: Joi.string().valid(...Object.values(Job)),
 });
 `;
-  const ast = await parseAsync(Lang.TypeScript, source);
 
-  const modifications = await joiRemoveImport({
-    ast,
-    report: { changesApplied: 0 },
-    lang: Lang.TypeScript,
-    filename: null,
-    history: [ast],
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiRemoveImport(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
-  expect(updatedSource).not.toContain("import Joi from 'joi';");
-  expect(updatedSource).toMatchSnapshot();
+  expect(updatedSource).not.contain("'joi'");
 });

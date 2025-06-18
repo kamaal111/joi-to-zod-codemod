@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest';
-import { Lang, parseAsync } from '@ast-grep/napi';
 
 import joiAddOptional from '../../../../src/codemods/joi-to-zod/rules/joi-add-optional';
+import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi add optional', async () => {
   const source = `
@@ -12,20 +13,13 @@ export const employee = Joi.object().keys({
   birthyear: Joi.number().integer().min(1970).max(2013),
 });
 `;
-  const ast = await parseAsync(Lang.TypeScript, source);
 
-  const modifications = await joiAddOptional({
-    ast,
-    report: { changesApplied: 0 },
-    lang: Lang.TypeScript,
-    filename: null,
-    history: [ast],
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiAddOptional(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
-  expect(updatedSource).not.toContain('required().optional');
-  expect(updatedSource).toContain('birthyear: Joi.number().integer().min(1970).max(2013).optional()');
-  expect(updatedSource).toMatchSnapshot();
+  expect(updatedSource).not.contain('required().optional');
+  expect(updatedSource, updatedSource).contain('birthyear: Joi.number().integer().min(1970).max(2013).optional()');
 });

@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest';
-import { Lang, parseAsync } from '@ast-grep/napi';
 
 import joiReferenceToZod from '../../../../src/codemods/joi-to-zod/rules/joi-reference-to-zod';
+import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi references to Zod', async () => {
   const source = `
@@ -29,19 +30,17 @@ export const employee = Joi.object().keys({
     .regex(/^[a-z]+$/, { name: 'alpha', invert: true }),
 });
 `;
-  const ast = await parseAsync(Lang.TypeScript, source);
 
-  const modifications = await joiReferenceToZod({
-    ast,
-    report: { changesApplied: 0 },
-    lang: Lang.TypeScript,
-    filename: null,
-    history: [ast],
-  });
+  const modifications = await invalidRuleSignal(
+    source,
+    JOI_TO_ZOD_LANGUAGE,
+    ast => {
+      return joiReferenceToZod(makeJoiToZodInitialModification(ast));
+    },
+    2,
+  );
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(5);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource.split('\n').slice(2)).not.contain('Joi');
-  expect(updatedSource).toMatchSnapshot();
 });

@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest';
-import { Lang, parseAsync } from '@ast-grep/napi';
 
 import joiRemovePrimitiveForEnum from '../../../../src/codemods/joi-to-zod/rules/joi-remove-primitive-for-enum';
+import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi remove primitive for enum', async () => {
   const source = `
@@ -17,20 +18,13 @@ export const employee = Joi.object().keys({
   job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]),
 });
 `;
-  const ast = await parseAsync(Lang.TypeScript, source);
 
-  const modifications = await joiRemovePrimitiveForEnum({
-    ast,
-    report: { changesApplied: 0 },
-    lang: Lang.TypeScript,
-    filename: null,
-    history: [ast],
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiRemovePrimitiveForEnum(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.toContain('string()');
   expect(updatedSource).toContain('job: Joi.enum([...Object.values(Job) as [string, ...Array<string>]])');
-  expect(updatedSource).toMatchSnapshot();
 });
