@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
 import joiAddOptional from '../../../../src/codemods/joi-to-zod/rules/joi-add-optional';
-import { invalidRuleSignal } from '../../../test-utils/detection-theory';
+import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi add optional', async () => {
@@ -22,4 +22,19 @@ export const employee = Joi.object().keys({
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource).not.contain('required().optional');
   expect(updatedSource, updatedSource).contain('birthyear: Joi.number().integer().min(1970).max(2013).optional()');
+});
+
+test('Joi add optional valid', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().alphanum().min(3).max(30).required(),
+  birthyear: Joi.number().integer().min(1970).max(2013).required(),
+});
+`;
+
+  await validRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiAddOptional(makeJoiToZodInitialModification(ast));
+  });
 });

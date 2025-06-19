@@ -24,3 +24,20 @@ export async function invalidRuleSignal(
 
   return modifications;
 }
+
+export async function validRuleSignal(
+  source: string,
+  lang: NapiLang,
+  transform: (ast: SgRoot<TypesMap>) => Promise<Modifications>,
+): Promise<Modifications> {
+  const ast = await parseAsync(lang, source);
+
+  const modifications = await transform(ast);
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied, updatedSource).toEqual(0);
+  expect(modifications.history.length, updatedSource).toEqual(1);
+  expect(source.trim()).toEqual(updatedSource.trim());
+
+  return modifications;
+}
