@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
 import joiAddOptional from '../../../../src/codemods/joi-to-zod/rules/joi-add-optional';
-import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { invalidRuleSignal } from '../../../test-utils/detection-theory';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi add optional', async () => {

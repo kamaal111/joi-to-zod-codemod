@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 
 import joiValidationsToZodValidations from '../../../../src/codemods/joi-to-zod/rules/joi-validations-to-zod-validations';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod/index';
-import { invalidRuleSignal } from '../../../test-utils/detect-theory';
+import { invalidRuleSignal } from '../../../test-utils/detection-theory';
 
 test('Joi alphanum to Zod regex', async () => {
   const source = `
