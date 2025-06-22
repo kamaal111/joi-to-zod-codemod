@@ -12,17 +12,14 @@ importers:
         specifier: ^0.38.4
         version: 0.38.4
       '@kamaalio/codemod-kit':
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.5
+        version: 0.0.5
       '@oclif/core':
         specifier: ^4.3.0
         version: 4.3.0
       '@oclif/plugin-help':
         specifier: ^6.2.28
         version: 6.2.28
-      fast-glob:
-        specifier: ^3.3.3
-        version: 3.3.3
     devDependencies:
       '@eslint/js':
         specifier: ^9.28.0
@@ -762,8 +759,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kamaalio/codemod-kit@0.0.4':
-    resolution: {integrity: sha512-vpZGPuskExNs3LzM8ldUeSakmmFWk622+/OUBruImw2Fkq19J47Av6C4jpz6+oE57KTvC6xG1Te+892PxhZZlw==}
+  '@kamaalio/codemod-kit@0.0.5':
+    resolution: {integrity: sha512-UIyFR+gvLtCOuhS6LNkxtdQRGhwk8TOXKhgXmxGoaSp5wjy7va/loVYV2xCeZPE1mNpKYKMaAgWBzkkiO+IYng==}
 
   '@kamaalio/prettier-config@0.1.2':
     resolution: {integrity: sha512-1WW8H1y4np7QYimWFKkF4sm3BpMVYFE43fWWpuSLwP1gmdcy8+DxP7VPqpzP5f7HEtqd2WieqUzwLUnS6foDFw==}
@@ -3413,7 +3410,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kamaalio/codemod-kit@0.0.4':
+  '@kamaalio/codemod-kit@0.0.5':
     dependencies:
       '@ast-grep/napi': 0.38.5
       fast-glob: 3.3.3

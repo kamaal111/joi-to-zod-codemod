@@ -33,21 +33,16 @@ joi-to-zod-codemod run ./src
 
 ### CLI Options
 
-| Flag        | Short | Default          | Description                              |
-| ----------- | ----- | ---------------- | ---------------------------------------- |
-| `--dry`     | `-d`  | `false`          | Preview changes without writing to files |
-| `--ignores` | `-i`  | `"node_modules"` | Paths to ignore                          |
-| `--search`  | `-s`  | `**/*.ts`        | Glob patterns to search for              |
-| `--log`     | `-l`  | `true`           | Enable logging output                    |
+| Flag    | Short | Default | Description                              |
+| ------- | ----- | ------- | ---------------------------------------- |
+| `--dry` | `-d`  | `false` | Preview changes without writing to files |
+| `--log` | `-l`  | `true`  | Enable logging output                    |
 
 ### Examples
 
 ```bash
 # Dry run to preview changes
 joi-to-zod-codemod run --dry
-
-# Transform specific files with custom glob
-joi-to-zod-codemod run --search src/**/*.ts
 
 # Transform specific directory with minimal output
 joi-to-zod-codemod run ./api --no-log
