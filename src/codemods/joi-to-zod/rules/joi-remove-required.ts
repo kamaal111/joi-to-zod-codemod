@@ -1,4 +1,5 @@
-import type { Modifications } from '../../types.js';
+import type { Modifications } from '@kamaalio/codemod-kit';
+
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import removeJoiValidationEdits from '../utils/remove-joi-validation-edits.js';
 

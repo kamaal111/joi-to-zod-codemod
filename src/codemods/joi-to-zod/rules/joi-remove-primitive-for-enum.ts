@@ -1,5 +1,6 @@
+import type { Modifications } from '@kamaalio/codemod-kit';
+
 import { compactMap } from '../../../utils/arrays.js';
-import type { Modifications } from '../../types.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 import getJoiPrimitive from '../utils/get-joi-primitive.js';

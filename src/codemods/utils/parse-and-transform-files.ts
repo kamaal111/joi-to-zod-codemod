@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import type { NapiLang } from '@ast-grep/napi/types/lang.js';
 import fg from 'fast-glob';
+import type { Modifications } from '@kamaalio/codemod-kit';
 
-import type { Modifications } from '../types.js';
 import { LANG_TO_EXTENSIONS_MAPPING } from '../../constants.js';
 
 async function parseAndTransformFiles(

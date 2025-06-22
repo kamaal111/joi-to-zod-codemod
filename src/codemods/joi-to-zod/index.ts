@@ -1,7 +1,7 @@
 import { Lang, parseAsync, type SgNode, type SgRoot } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
+import type { Codemod, Modifications } from '@kamaalio/codemod-kit';
 
-import type { Modifications } from '../types.js';
 import type { Optional } from '../../utils/type-utils.js';
 import zodAddImport from './rules/zod-add-import.js';
 import hasJoiImport from './utils/has-joi-import.js';
@@ -64,5 +64,12 @@ async function joiToZodTransformer(
 
   return joiToZodModifications(makeJoiToZodInitialModification(ast, filename));
 }
+
+export const JOI_TO_ZOD_CODEMOD: Codemod = {
+  name: 'joi-to-zod-transformer',
+  languages: [JOI_TO_ZOD_LANGUAGE],
+  commitMessage: 'refactor(codemod): Transformed Joi schemas to Zod',
+  transformer: joiToZodTransformer,
+};
 
 export default joiToZodTransformer;

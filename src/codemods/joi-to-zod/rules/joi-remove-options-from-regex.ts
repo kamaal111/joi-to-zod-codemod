@@ -1,4 +1,5 @@
-import type { Modifications } from '../../types.js';
+import type { Modifications } from '@kamaalio/codemod-kit';
+
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
 import getJoiProperties from '../utils/get-joi-properties.js';

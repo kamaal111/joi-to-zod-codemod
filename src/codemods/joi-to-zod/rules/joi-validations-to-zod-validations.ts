@@ -1,6 +1,7 @@
+import type { Modifications } from '@kamaalio/codemod-kit';
+
 import { toEntries } from '../../../utils/objects.js';
 import type { Optional } from '../../../utils/type-utils.js';
-import type { Modifications } from '../../types.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import type { JoiPrimitives } from '../types.js';
 import replaceJoiValidationWithZodEdits from '../utils/replace-joi-validation-with-zod-edits.js';
