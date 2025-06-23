@@ -1,8 +1,10 @@
 import { Args, Command, Flags } from '@oclif/core';
 import { runCodemod } from '@kamaalio/codemod-kit';
 
-import { DEFAULT_DRY_RUN_OPTION, DEFAULT_NO_LOG_OPTION } from '../constants.js';
 import { JOI_TO_ZOD_CODEMOD } from '../codemods/joi-to-zod/index.js';
+
+const DEFAULT_DRY_RUN_OPTION = false;
+const DEFAULT_NO_LOG_OPTION = false;
 
 class Run extends Command {
   static override args = {

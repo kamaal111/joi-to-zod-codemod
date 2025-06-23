@@ -70,7 +70,6 @@ export async function joiToZodTransformer(
 export const JOI_TO_ZOD_CODEMOD: Codemod = {
   name: 'joi-to-zod-transformer',
   languages: [JOI_TO_ZOD_LANGUAGE],
-  commitMessage: 'refactor(codemod): Transformed Joi schemas to Zod',
   transformer: joiToZod,
 };
 
