@@ -54,7 +54,7 @@ quality: lint format-check type-check
 
 # Preview command
 preview:
-    node ./bin/dev.mjs run
+    node ./bin/dev.mjs run test/resources
 
 # Publish package to NPM
 publish: install-modules build-clean

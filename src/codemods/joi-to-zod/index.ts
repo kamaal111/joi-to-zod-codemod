@@ -50,13 +50,15 @@ export function makeJoiToZodInitialModification(
   };
 }
 
-export async function joiToZod(content: SgRoot<TypesMap> | string): Promise<SgRoot<TypesMap>> {
+export async function joiToZod(content: SgRoot<TypesMap> | string): Promise<string> {
   const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
 
-  return joiToZodModifications(makeJoiToZodInitialModification(ast)).then(modifications => modifications.ast);
+  return joiToZodModifications(makeJoiToZodInitialModification(ast)).then(modifications => {
+    return modifications.ast.root().text();
+  });
 }
 
-async function joiToZodTransformer(
+export async function joiToZodTransformer(
   content: SgRoot<TypesMap> | string,
   filename: Optional<string>,
 ): Promise<Modifications> {
@@ -69,7 +71,7 @@ export const JOI_TO_ZOD_CODEMOD: Codemod = {
   name: 'joi-to-zod-transformer',
   languages: [JOI_TO_ZOD_LANGUAGE],
   commitMessage: 'refactor(codemod): Transformed Joi schemas to Zod',
-  transformer: joiToZodTransformer,
+  transformer: joiToZod,
 };
 
-export default joiToZodTransformer;
+export default joiToZod;
