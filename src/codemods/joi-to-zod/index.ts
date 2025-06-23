@@ -50,19 +50,16 @@ export function makeJoiToZodInitialModification(
   };
 }
 
-export async function joiToZod(content: SgRoot<TypesMap> | string): Promise<string> {
-  const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
+async function joiToZod(content: string, filename?: Optional<string>): Promise<string> {
+  const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, content);
 
-  return joiToZodModifications(makeJoiToZodInitialModification(ast)).then(modifications => {
+  return joiToZodModifications(makeJoiToZodInitialModification(ast, filename)).then(modifications => {
     return modifications.ast.root().text();
   });
 }
 
-export async function joiToZodTransformer(
-  content: SgRoot<TypesMap> | string,
-  filename: Optional<string>,
-): Promise<Modifications> {
-  const ast = typeof content === 'string' ? await parseAsync(JOI_TO_ZOD_LANGUAGE, content) : content;
+export async function joiToZodTransformer(content: string, filename: Optional<string>): Promise<Modifications> {
+  const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, content);
 
   return joiToZodModifications(makeJoiToZodInitialModification(ast, filename));
 }
