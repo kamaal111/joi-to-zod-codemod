@@ -1,6 +1,6 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
+import { arrays } from '@kamaalio/kamaal';
 
-import { compactMap } from '../../../utils/arrays.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 
@@ -9,12 +9,14 @@ async function joiReferenceToZod(modifications: Modifications): Promise<Modifica
   const joiImportIdentifierName = getJoiIdentifierName(root);
   if (joiImportIdentifierName == null) return modifications;
 
-  const edits = compactMap(root.findAll({ rule: { pattern: `${joiImportIdentifierName}.` } }), node => {
-    return node
-      .children()
-      .find(child => child.text() === joiImportIdentifierName)
-      ?.replace('z');
-  }).flat();
+  const edits = arrays
+    .compactMap(root.findAll({ rule: { pattern: `${joiImportIdentifierName}.` } }), node => {
+      return node
+        .children()
+        .find(child => child.text() === joiImportIdentifierName)
+        ?.replace('z');
+    })
+    .flat();
 
   return commitEditModifications(edits, modifications);
 }

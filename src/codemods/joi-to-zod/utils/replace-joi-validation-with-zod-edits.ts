@@ -1,5 +1,6 @@
 import type { Edit, SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
+import { arrays } from '@kamaalio/kamaal';
 
 import type { JoiPrimitives } from '../types.js';
 import getJoiProperties from './get-joi-properties.js';
@@ -7,7 +8,6 @@ import extractNameFromCallExpression from '../../utils/extract-name-from-call-ex
 import getJoiIdentifierName from './get-joi-identifier-name.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
 import type { Optional } from '../../../utils/type-utils.js';
-import { compactMap } from '../../../utils/arrays.js';
 
 function replaceJoiValidationWithZodEdits(
   root: SgNode<TypesMap, Kinds<TypesMap>>,
@@ -33,7 +33,7 @@ function replaceJoiValidationWithZodEdits(
     validationName: params.validationTargetKey,
   });
 
-  return compactMap(joiProperties, callExpression => {
+  return arrays.compactMap(joiProperties, callExpression => {
     const callExpressionText = callExpression.text();
 
     let finalValidationTargetKeyArgs = validationTargetKeyArgs;

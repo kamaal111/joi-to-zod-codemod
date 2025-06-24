@@ -1,6 +1,6 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
+import { arrays } from '@kamaalio/kamaal';
 
-import { compactMap } from '../../../utils/arrays.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 
@@ -11,7 +11,7 @@ async function joiObjectKeysUnnest(modifications: Modifications): Promise<Modifi
   const joiImportIdentifierName = getJoiIdentifierName(root);
   if (joiImportIdentifierName == null) return modifications;
 
-  const edits = compactMap(
+  const edits = arrays.compactMap(
     root.findAll({ rule: { pattern: `${joiImportIdentifierName}.object().keys($${ARGS_META_IDENTIFIER})` } }),
     node => {
       const objectSchema = node.getMatch(ARGS_META_IDENTIFIER);

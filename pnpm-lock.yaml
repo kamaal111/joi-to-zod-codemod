@@ -14,6 +14,9 @@ importers:
       '@kamaalio/codemod-kit':
         specifier: ^0.0.12
         version: 0.0.12
+      '@kamaalio/kamaal':
+        specifier: ^0.7.6
+        version: 0.7.6
       '@oclif/core':
         specifier: ^4.3.0
         version: 4.3.0
@@ -761,6 +764,10 @@ packages:
 
   '@kamaalio/codemod-kit@0.0.12':
     resolution: {integrity: sha512-7yCK01N37j7hXXsnRPzcU4udyhlAjUdldAYYFf4qLC74rFZ6Wpld/kq6kZx5Vk09iVOPsoBFF+aY16GaEPuKyg==}
+
+  '@kamaalio/kamaal@0.7.6':
+    resolution: {integrity: sha512-L7HY215ZuD8L1HBNkqyD/B0v27Hx9XByZA4iRChGmvPSvZyxzXLAPsbRKb+M4ByHgM1+hcZs5pm2ZgfldTFzTw==}
+    engines: {node: '>=21'}
 
   '@kamaalio/prettier-config@0.1.2':
     resolution: {integrity: sha512-1WW8H1y4np7QYimWFKkF4sm3BpMVYFE43fWWpuSLwP1gmdcy8+DxP7VPqpzP5f7HEtqd2WieqUzwLUnS6foDFw==}
@@ -3415,6 +3422,8 @@ snapshots:
       '@ast-grep/napi': 0.38.5
       fast-glob: 3.3.3
       neverthrow: 8.2.0
+
+  '@kamaalio/kamaal@0.7.6': {}
 
   '@kamaalio/prettier-config@0.1.2': {}
 

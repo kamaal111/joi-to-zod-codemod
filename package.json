@@ -34,10 +34,11 @@
   "keywords": [],
   "author": "Kamaal Farah",
   "license": "MIT",
-  "packageManager": "pnpm@10.12.2",
+  "packageManager": "pnpm@10.12.3",
   "dependencies": {
     "@ast-grep/napi": "^0.38.4",
     "@kamaalio/codemod-kit": "^0.0.12",
+    "@kamaalio/kamaal": "^0.7.6",
     "@oclif/core": "^4.3.0",
     "@oclif/plugin-help": "^6.2.28"
   },

@@ -1,6 +1,6 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
+import { objects } from '@kamaalio/kamaal';
 
-import { toEntries } from '../../../utils/objects.js';
 import type { Optional } from '../../../utils/type-utils.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import type { JoiPrimitives } from '../types.js';
@@ -31,7 +31,7 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
 
 async function joiValidationsToZodValidations(modifications: Modifications): Promise<Modifications> {
   let committed = modifications;
-  const mappings = toEntries(JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING).flatMap(([primitive, values]) => {
+  const mappings = objects.toEntries(JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING).flatMap(([primitive, values]) => {
     return values.map(({ joi, zod }) => ({ primitive, joi, zod }));
   });
   for (const { primitive, joi, zod } of mappings) {

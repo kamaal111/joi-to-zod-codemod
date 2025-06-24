@@ -1,6 +1,6 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
+import { arrays } from '@kamaalio/kamaal';
 
-import { compactMap } from '../../../utils/arrays.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 import getJoiPrimitive from '../utils/get-joi-primitive.js';
@@ -11,14 +11,17 @@ async function joiRemovePrimitiveForEnum(modifications: Modifications): Promise<
   const joiImportIdentifierName = getJoiIdentifierName(root);
   if (joiImportIdentifierName == null) return modifications;
 
-  const edits = compactMap(getJoiProperties(root, { primitive: '*', validationName: 'enum($ARGS)' }), property => {
-    const primitive = getJoiPrimitive(property, joiImportIdentifierName);
-    if (primitive == null) return null;
+  const edits = arrays.compactMap(
+    getJoiProperties(root, { primitive: '*', validationName: 'enum($ARGS)' }),
+    property => {
+      const primitive = getJoiPrimitive(property, joiImportIdentifierName);
+      if (primitive == null) return null;
 
-    const replacement = property.text().replace(`.${primitive}()`, '');
+      const replacement = property.text().replace(`.${primitive}()`, '');
 
-    return property.replace(replacement);
-  });
+      return property.replace(replacement);
+    },
+  );
 
   return commitEditModifications(edits, modifications);
 }
