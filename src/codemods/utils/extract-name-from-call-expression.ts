@@ -1,6 +1,6 @@
-import type { Optional } from '../../utils/type-utils.js';
+import type { types } from '@kamaalio/kamaal';
 
-function extractNameFromCallExpression(callExpression: Optional<string>): Optional<string> {
+function extractNameFromCallExpression(callExpression: types.Optional<string>): types.Optional<string> {
   if (callExpression == null) return null;
 
   const isCallExpression = callExpression.includes('(');

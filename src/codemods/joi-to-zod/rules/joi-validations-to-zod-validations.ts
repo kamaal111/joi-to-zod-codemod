@@ -1,14 +1,14 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { objects } from '@kamaalio/kamaal';
+import type { types } from '@kamaalio/kamaal';
 
-import type { Optional } from '../../../utils/type-utils.js';
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import type { JoiPrimitives } from '../types.js';
 import replaceJoiValidationWithZodEdits from '../utils/replace-joi-validation-with-zod-edits.js';
 
 const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
   JoiPrimitives,
-  Array<{ joi: string; zod: Optional<string> }>
+  Array<{ joi: string; zod: types.Optional<string> }>
 > = {
   string: [
     { joi: 'alphanum()', zod: 'regex(/^[a-z0-9]+$/)' },

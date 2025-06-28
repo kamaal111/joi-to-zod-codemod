@@ -37,8 +37,8 @@
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
     "@ast-grep/napi": "^0.38.6",
-    "@kamaalio/codemod-kit": "^0.0.18",
-    "@kamaalio/kamaal": "^0.7.6",
+    "@kamaalio/codemod-kit": "^0.0.22",
+    "@kamaalio/kamaal": "^0.7.8",
     "@oclif/core": "^4.4.0",
     "@oclif/plugin-help": "^6.2.29"
   },

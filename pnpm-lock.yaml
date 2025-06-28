@@ -12,11 +12,11 @@ importers:
         specifier: ^0.38.6
         version: 0.38.6
       '@kamaalio/codemod-kit':
-        specifier: ^0.0.18
-        version: 0.0.18
+        specifier: ^0.0.22
+        version: 0.0.22
       '@kamaalio/kamaal':
-        specifier: ^0.7.6
-        version: 0.7.6
+        specifier: ^0.7.8
+        version: 0.7.8
       '@oclif/core':
         specifier: ^4.4.0
         version: 4.4.0
@@ -704,11 +704,11 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kamaalio/codemod-kit@0.0.18':
-    resolution: {integrity: sha512-k7crAXco24sRio8lxbR4jMwtPzLf1KGpLkcxTE6QajULhkDFLPS9bkPwB7Y76+BZT0Uuk3fPbAbb4ZoHcYyDNQ==}
+  '@kamaalio/codemod-kit@0.0.22':
+    resolution: {integrity: sha512-L+Sy6NWYZw7HKqZQ3jkrW5f6FgRXjARN6qfYPq/Pc3b1RFtTAv5yqrUpk2IFgDjHHem0H3dn+m2kT96+GRIVUQ==}
 
-  '@kamaalio/kamaal@0.7.6':
-    resolution: {integrity: sha512-L7HY215ZuD8L1HBNkqyD/B0v27Hx9XByZA4iRChGmvPSvZyxzXLAPsbRKb+M4ByHgM1+hcZs5pm2ZgfldTFzTw==}
+  '@kamaalio/kamaal@0.7.8':
+    resolution: {integrity: sha512-G/hWpOEjku48AF8exsc9RmaJ62gXMSdxQC1f4Dr1xAgW0pLh/Ut2RirtbvBFqLWU0+JxhaGenvGix4bvXmmggw==}
     engines: {node: '>=21'}
 
   '@kamaalio/prettier-config@0.1.2':
@@ -3320,14 +3320,14 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kamaalio/codemod-kit@0.0.18':
+  '@kamaalio/codemod-kit@0.0.22':
     dependencies:
       '@ast-grep/napi': 0.38.6
-      '@kamaalio/kamaal': 0.7.6
+      '@kamaalio/kamaal': 0.7.8
       fast-glob: 3.3.3
       neverthrow: 8.2.0
 
-  '@kamaalio/kamaal@0.7.6': {}
+  '@kamaalio/kamaal@0.7.8': {}
 
   '@kamaalio/prettier-config@0.1.2': {}
 

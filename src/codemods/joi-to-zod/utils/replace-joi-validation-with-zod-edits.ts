@@ -1,17 +1,16 @@
 import type { Edit, SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
-import { arrays } from '@kamaalio/kamaal';
+import { arrays, type types } from '@kamaalio/kamaal';
 
 import type { JoiPrimitives } from '../types.js';
 import getJoiProperties from './get-joi-properties.js';
 import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
 import getJoiIdentifierName from './get-joi-identifier-name.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
-import type { Optional } from '../../../utils/type-utils.js';
 
 function replaceJoiValidationWithZodEdits(
   root: SgNode<TypesMap, Kinds<TypesMap>>,
-  params: { primitive: JoiPrimitives; validationTargetKey: string; zodValidation: Optional<string> },
+  params: { primitive: JoiPrimitives; validationTargetKey: string; zodValidation: types.Optional<string> },
 ): Array<Edit> {
   const joiImportIdentifierName = getJoiIdentifierName(root);
   if (joiImportIdentifierName == null) return [];

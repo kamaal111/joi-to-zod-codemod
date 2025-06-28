@@ -1,8 +1,8 @@
 import { Lang, parseAsync, type SgNode, type SgRoot } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import type { Codemod, Modifications } from '@kamaalio/codemod-kit';
+import type { types } from '@kamaalio/kamaal';
 
-import type { Optional } from '../../utils/type-utils.js';
 import zodAddImport from './rules/zod-add-import.js';
 import hasJoiImport from './utils/has-joi-import.js';
 import joiRemoveRequired from './rules/joi-remove-required.js';
@@ -39,7 +39,7 @@ export async function joiToZodModifications(modifications: Modifications): Promi
 
 export function makeJoiToZodInitialModification(
   ast: SgRoot<TypesMap>,
-  filename: Optional<string> = null,
+  filename: types.Optional<string> = null,
 ): Modifications {
   return {
     lang: JOI_TO_ZOD_LANGUAGE,
@@ -50,7 +50,7 @@ export function makeJoiToZodInitialModification(
   };
 }
 
-async function joiToZod(content: string, filename?: Optional<string>): Promise<string> {
+async function joiToZod(content: string, filename?: types.Optional<string>): Promise<string> {
   const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, content);
 
   return joiToZodModifications(makeJoiToZodInitialModification(ast, filename)).then(modifications => {
@@ -58,7 +58,7 @@ async function joiToZod(content: string, filename?: Optional<string>): Promise<s
   });
 }
 
-export async function joiToZodTransformer(content: string, filename: Optional<string>): Promise<Modifications> {
+export async function joiToZodTransformer(content: string, filename: types.Optional<string>): Promise<Modifications> {
   const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, content);
 
   return joiToZodModifications(makeJoiToZodInitialModification(ast, filename));
