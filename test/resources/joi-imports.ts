@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import z from "zod";
 
 import { MAX_YEAR } from './other-source';
 
@@ -10,14 +10,13 @@ enum Job {
   Designer = 'designer',
 }
 
-export const employee = Joi.object().keys({
-  name: Joi.string().alphanum().min(3).max(30).required(),
-  birthyear: Joi.number().integer().min(MINIMUM_YEAR).max(MAX_YEAR),
-  job: Joi.string().valid(...Object.values(Job)),
-  nickname: Joi.string()
-    .required()
+export const employee = z.object({
+  name: z.string().regex(/^[a-z0-9]+$/).min(3).max(30),
+  birthyear: z.number().int().min(MINIMUM_YEAR).max(MAX_YEAR).optional(),
+  job: z.enum([...Object.values(Job) as [string, ...Array<string>]]).optional(),
+  nickname: z.string()
     .min(3)
     .max(20)
-    .description('Nickname')
-    .regex(/^[a-z]+$/, { name: 'alpha', invert: true }),
-});
+    .describe('Nickname')
+    .regex(/^[a-z]+$/),
+}).strict();
