@@ -13,6 +13,13 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
   string: [
     { joi: 'alphanum()', zod: 'regex(/^[a-z0-9]+$/)' },
     { joi: 'uri()', zod: 'url()' },
+    { joi: 'guid()', zod: 'uuid()' },
+    { joi: 'lowercase()', zod: 'toLowerCase()' },
+    { joi: 'uppercase()', zod: 'toUpperCase()' },
+    { joi: 'isoDate()', zod: 'datetime()' },
+    { joi: 'token()', zod: 'regex(/^\\w+$/)' },
+    { joi: 'hex()', zod: 'regex(/^[0-9a-fA-F]+$/)' },
+    { joi: 'pattern($ARGS)', zod: 'regex($ARGS)' },
   ],
   '*': [
     { joi: 'description($ARGS)', zod: 'describe($ARGS)' },
@@ -20,12 +27,14 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'required(false)', zod: 'optional()' },
     { joi: 'unknown(true)', zod: 'passthrough()' },
     { joi: 'unknown(false)', zod: 'strict()' },
+    { joi: 'bool()', zod: 'boolean()' },
   ],
   number: [
     { joi: 'integer()', zod: 'int()' },
     { joi: 'greater($ARGS)', zod: 'gt($ARGS)' },
     { joi: 'less($ARGS)', zod: 'lt($ARGS)' },
     { joi: 'precision($ARGS)', zod: 'step(1 / 10**$ARGS)' },
+    { joi: 'multiple($ARGS)', zod: 'multipleOf($ARGS)' },
   ],
 };
 

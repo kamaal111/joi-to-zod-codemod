@@ -11,6 +11,8 @@ import joiCheckToEnum from './rules/joi-check-to-enum.js';
 import joiRemoveImport from './rules/joi-remove-import.js';
 import joiRemovePrimitiveForEnum from './rules/joi-remove-primitive-for-enum.js';
 import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
+import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
+import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
 import joiAddOptional from './rules/joi-add-optional.js';
 import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
@@ -31,6 +33,8 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiCheckToEnum)
     .then(joiRemovePrimitiveForEnum)
     .then(joiObjectKeysUnnest)
+    .then(joiArrayItemsUnnest)
+    .then(joiAlternativesToUnion)
     .then(joiAddOptional)
     .then(joiRemoveRequired)
     .then(joiReferenceToZod)
