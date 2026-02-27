@@ -78,10 +78,13 @@ function replaceJoiValidationWithZodEdits(
         }
       }
     }
-    const finalValidationTargetKeyStr = `.${validationTargetKeyName}(${finalValidationTargetKeyArgs})`;
+    const finalValidationTargetKey = new RegExp(
+      `.${validationTargetKeyName}\\(${finalValidationTargetKeyArgs}\\)`,
+      'g',
+    );
     const finalZodReplacement = shouldRemoveValidation ? '' : `${zodReplacementName}(${finalZodReplacementArgs})`;
     const replacement = callExpressionText
-      .replaceAll(finalValidationTargetKeyStr, finalZodReplacement)
+      .replace(finalValidationTargetKey, finalZodReplacement)
       .split('\n')
       .filter(value => value.trim().length > 0)
       .join('\n')

@@ -14,8 +14,6 @@ import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
 import joiAddOptional from './rules/joi-add-optional.js';
 import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
-import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
-import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
 
 export const JOI_TO_ZOD_LANGUAGE = Lang.TypeScript;
 
@@ -33,8 +31,6 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiCheckToEnum)
     .then(joiRemovePrimitiveForEnum)
     .then(joiObjectKeysUnnest)
-    .then(joiArrayItemsUnnest)
-    .then(joiAlternativesToUnion)
     .then(joiAddOptional)
     .then(joiRemoveRequired)
     .then(joiReferenceToZod)
