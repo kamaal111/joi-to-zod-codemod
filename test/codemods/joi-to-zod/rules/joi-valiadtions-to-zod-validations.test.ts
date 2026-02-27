@@ -355,7 +355,7 @@ const quantity = Joi.number().multiple(5);
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('multiple');
+  expect(updatedSource).not.contain('multiple(5)');
   expect(updatedSource).contain('multipleOf(5)');
 });
 

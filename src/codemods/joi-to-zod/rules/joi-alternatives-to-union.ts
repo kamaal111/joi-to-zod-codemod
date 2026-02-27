@@ -16,12 +16,12 @@ async function joiAlternativesToUnion(modifications: Modifications): Promise<Mod
       rule: { pattern: `${joiImportIdentifierName}.alternatives().try($$$${ARGS_META_IDENTIFIER})` },
     }),
     node => {
-      const args = node.getMultipleMatches(ARGS_META_IDENTIFIER);
-      if (args.length === 0) return null;
+      const text = node.text();
+      const replacement = text
+        .replace(`${joiImportIdentifierName}.alternatives().try(`, `${joiImportIdentifierName}.union([`)
+        .replace(/\)$/, '])');
 
-      const argsText = args.map(a => a.text()).join(', ');
-
-      return node.replace(`${joiImportIdentifierName}.union([${argsText}])`);
+      return node.replace(replacement);
     },
   );
 
