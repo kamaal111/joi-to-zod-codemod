@@ -216,3 +216,164 @@ export const employee = Joi.object().keys({
   expect(updatedSource).not.contain('precision');
   expect(updatedSource, updatedSource).contain('step(1 / 10**3)');
 });
+
+test('Joi guid to Zod uuid', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  id: Joi.string().guid(),
+});
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('guid');
+  expect(updatedSource).contain('uuid()');
+});
+
+test('Joi lowercase to Zod toLowerCase', async () => {
+  const source = `
+import Joi from 'joi';
+
+const username = Joi.string().lowercase();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('lowercase');
+  expect(updatedSource).contain('toLowerCase()');
+});
+
+test('Joi uppercase to Zod toUpperCase', async () => {
+  const source = `
+import Joi from 'joi';
+
+const code = Joi.string().uppercase();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('uppercase');
+  expect(updatedSource).contain('toUpperCase()');
+});
+
+test('Joi isoDate to Zod datetime', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  createdAt: Joi.string().isoDate(),
+});
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('isoDate');
+  expect(updatedSource).contain('datetime()');
+});
+
+test('Joi token to Zod regex', async () => {
+  const source = `
+import Joi from 'joi';
+
+const apiKey = Joi.string().token();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('token');
+  expect(updatedSource).contain('regex(/^\\w+$/)');
+});
+
+test('Joi hex to Zod regex', async () => {
+  const source = `
+import Joi from 'joi';
+
+const color = Joi.string().hex();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('hex');
+  expect(updatedSource).contain('regex(/^[0-9a-fA-F]+$/)');
+});
+
+test('Joi pattern to Zod regex', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().pattern(/^[a-z]+$/),
+});
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('pattern');
+  expect(updatedSource).contain('regex(/^[a-z]+$/)');
+});
+
+test('Joi multiple to Zod multipleOf', async () => {
+  const source = `
+import Joi from 'joi';
+
+const quantity = Joi.number().multiple(5);
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('multiple(5)');
+  expect(updatedSource).contain('multipleOf(5)');
+});
+
+test('Joi bool to Zod boolean', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  isActive: Joi.bool(),
+});
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('bool()');
+  expect(updatedSource).contain('boolean()');
+});

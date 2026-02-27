@@ -23,6 +23,15 @@ export const employee = Joi.object().keys({
 "
 `;
 
+exports[`Joi bool to Zod boolean 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  isActive: Joi.boolean(),
+});
+"
+`;
+
 exports[`Joi description to Zod describe 1`] = `
 "import Joi from 'joi';
 
@@ -37,6 +46,22 @@ export const employee = Joi.object().keys({
 "
 `;
 
+exports[`Joi guid to Zod uuid 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  id: Joi.string().uuid(),
+});
+"
+`;
+
+exports[`Joi hex to Zod regex 1`] = `
+"import Joi from 'joi';
+
+const color = Joi.string().regex(/^[0-9a-fA-F]+$/);
+"
+`;
+
 exports[`Joi integer to Zod int 1`] = `
 "import Joi from 'joi';
 
@@ -47,6 +72,29 @@ const MINIMUM_YEAR = 1970;
 export const employee = Joi.object().keys({
   birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR),
 });
+"
+`;
+
+exports[`Joi isoDate to Zod datetime 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  createdAt: Joi.string().datetime(),
+});
+"
+`;
+
+exports[`Joi lowercase to Zod toLowerCase 1`] = `
+"import Joi from 'joi';
+
+const username = Joi.string().toLowerCase();
+"
+`;
+
+exports[`Joi multiple to Zod multipleOf 1`] = `
+"import Joi from 'joi';
+
+const quantity = Joi.number().multipleOf(5);
 "
 `;
 
@@ -66,6 +114,15 @@ const url = Joi.string().optional();
 "
 `;
 
+exports[`Joi pattern to Zod regex 1`] = `
+"import Joi from 'joi';
+
+export const employee = Joi.object().keys({
+  name: Joi.string().regex(/^[a-z]+$/),
+});
+"
+`;
+
 exports[`Joi precision to Zod step 1`] = `
 "import Joi from 'joi';
 
@@ -79,10 +136,24 @@ export const employee = Joi.object().keys({
 "
 `;
 
+exports[`Joi token to Zod regex 1`] = `
+"import Joi from 'joi';
+
+const apiKey = Joi.string().regex(/^\\w+$/);
+"
+`;
+
 exports[`Joi unknown to Zod passthrough 1`] = `
 "import Joi from 'joi';
 
 const url = Joi.string().optional().passthrough();
+"
+`;
+
+exports[`Joi uppercase to Zod toUpperCase 1`] = `
+"import Joi from 'joi';
+
+const code = Joi.string().toUpperCase();
 "
 `;
 
