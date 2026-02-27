@@ -76,8 +76,8 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.15.29)(tsx@4.20.3)(yaml@2.8.0)
       zod:
-        specifier: ^3.25.67
-        version: 3.25.67
+        specifier: ^4.3.6
+        version: 4.3.6
 
 packages:
 
@@ -2488,6 +2488,9 @@ packages:
 
   zod@3.25.67:
     resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -5357,3 +5360,5 @@ snapshots:
   yoctocolors@2.1.1: {}
 
   zod@3.25.67: {}
+
+  zod@4.3.6: {}

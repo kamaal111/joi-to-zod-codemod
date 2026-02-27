@@ -14,7 +14,7 @@ async function zodAddImport(modifications: Modifications): Promise<Modifications
   const edit = {
     startPos: joiRange.end.index,
     endPos: joiRange.end.index,
-    insertedText: '\nimport z from "zod";',
+    insertedText: '\nimport { z } from "zod";',
   };
 
   return commitEditModifications([edit], modifications);
