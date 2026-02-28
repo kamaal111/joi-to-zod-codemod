@@ -6,6 +6,25 @@ import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 
 const ARGS_META_IDENTIFIER = 'ARGS';
 
+// Returns the index past the end of a regex literal (including any flags) that
+// starts at position 0 of `text`, or -1 if no valid regex literal is found.
+function findRegexLiteralEnd(text: string): number {
+  let i = 1; // skip opening '/'
+  while (i < text.length) {
+    if (text[i] === '\\') {
+      i += 2;
+      continue;
+    } // skip escaped chars
+    if (text[i] === '/') {
+      i++; // move past closing '/'
+      while (i < text.length && /[a-z]/i.test(text[i]!)) i++; // skip flags
+      return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
 async function joiObjectPatternToRecord(modifications: Modifications): Promise<Modifications> {
   const root = modifications.ast.root();
   const joiImportIdentifierName = getJoiIdentifierName(root);
@@ -26,12 +45,19 @@ async function joiObjectPatternToRecord(modifications: Modifications): Promise<M
 
       const argsText = text.slice(argsStartIndex, closeParenIndex);
 
-      // Skip regex-literal keys: Zod's record key must be a Zod schema, not a RegExp.
-      // Any regex literal starts with '/', which no valid Joi schema expression does.
-      const firstArg = argsText.split(',')[0]?.trim();
-      if (firstArg != null && firstArg.startsWith('/')) return null;
+      // When the key is a regex literal, rewrite it to Joi.string().regex(regex)
+      // so the downstream joiReferenceToZod step produces z.record(z.string().regex(...), ...)
+      let finalArgsText = argsText;
+      const trimmedArgs = argsText.trimStart();
+      if (trimmedArgs.startsWith('/')) {
+        const regexEnd = findRegexLiteralEnd(trimmedArgs);
+        if (regexEnd === -1) return null;
+        const regexLiteral = trimmedArgs.slice(0, regexEnd);
+        const restArgs = trimmedArgs.slice(regexEnd).replace(/^\s*,\s*/, '');
+        finalArgsText = `${joiImportIdentifierName}.string().regex(${regexLiteral}), ${restArgs}`;
+      }
 
-      return node.replace(`${joiImportIdentifierName}.record(${argsText})`);
+      return node.replace(`${joiImportIdentifierName}.record(${finalArgsText})`);
     },
   );
 
