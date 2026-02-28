@@ -1,15 +1,15 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Joi object pattern to Zod record 1`] = `
+exports[`Joi object multiline pattern to Zod record 1`] = `
 "import Joi from 'joi';
 
 export const config = Joi.record(Joi.string(), Joi.number());
 "
 `;
 
-exports[`Joi object pattern with regex key to Zod record 1`] = `
+exports[`Joi object pattern to Zod record 1`] = `
 "import Joi from 'joi';
 
-export const config = Joi.record(/^key/, Joi.string());
+export const config = Joi.record(Joi.string(), Joi.number());
 "
 `;

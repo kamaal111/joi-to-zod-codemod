@@ -21,11 +21,13 @@ export const config = Joi.object().pattern(Joi.string(), Joi.number());
   expect(updatedSource).toContain('Joi.record(Joi.string(), Joi.number())');
 });
 
-test('Joi object pattern with regex key to Zod record', async () => {
+test('Joi object multiline pattern to Zod record', async () => {
   const source = `
 import Joi from 'joi';
 
-export const config = Joi.object().pattern(/^key/, Joi.string());
+export const config = Joi
+  .object()
+  .pattern(Joi.string(), Joi.number());
 `;
 
   const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
@@ -34,8 +36,20 @@ export const config = Joi.object().pattern(/^key/, Joi.string());
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.toContain('object().pattern');
-  expect(updatedSource).toContain('Joi.record(/^key/, Joi.string())');
+  expect(updatedSource).not.toContain('object()');
+  expect(updatedSource).toContain('Joi.record(Joi.string(), Joi.number())');
+});
+
+test('Joi object pattern with regex key is unchanged', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const config = Joi.object().pattern(/^key/, Joi.string());
+`;
+
+  await validRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiObjectPatternToRecord(makeJoiToZodInitialModification(ast));
+  });
 });
 
 test('Joi object without pattern is unchanged', async () => {
