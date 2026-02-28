@@ -28,11 +28,14 @@ export const articleSchema = Joi.object().keys({
   summary: Joi.string().description('A brief summary of the article'),
 });
 
-// memberSchema covers: alternatives/try (union) and valid/enum via a TypeScript enum.
+// memberSchema covers: alternatives/try (union), valid/enum via a TypeScript enum (optional),
+// and valid/enum with .required() (both spread and literal forms).
 export const memberSchema = Joi.object().keys({
   id: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
   name: Joi.string().min(1).required(),
-  status: Joi.string().valid(...Object.values(MemberStatus)),
+  status: Joi.string().valid(...Object.values(MemberStatus)).required(),
+  role: Joi.string().valid('admin', 'editor', 'viewer').required(),
+  preferredTheme: Joi.string().valid('light', 'dark'),
 });
 
 // addressSchema and orderItemSchema are sub-schemas used inside orderSchema to

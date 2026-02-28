@@ -160,38 +160,70 @@ describe('articleSchema', () => {
 });
 
 describe('memberSchema', () => {
+  const validMember = { id: 'member-abc', name: 'Alice', status: 'active', role: 'admin' };
+
   test('accepts with a string id', () => {
-    const result = validate(memberSchema, { id: 'member-abc', name: 'Alice' });
+    const result = validate(memberSchema, validMember);
     expect(result.valid).toBe(true);
   });
 
   test('accepts with a number id', () => {
-    const result = validate(memberSchema, { id: 42, name: 'Bob' });
+    const result = validate(memberSchema, { ...validMember, id: 42 });
     expect(result.valid).toBe(true);
   });
 
   test('rejects when required id is missing', () => {
-    const result = validate(memberSchema, { name: 'Charlie' });
+    const result = validate(memberSchema, { name: 'Charlie', status: 'active', role: 'admin' });
     expect(result.valid).toBe(false);
   });
 
   test('rejects when id is not a string or number', () => {
-    const result = validate(memberSchema, { id: {}, name: 'Dave' });
+    const result = validate(memberSchema, { ...validMember, id: {} });
     expect(result.valid).toBe(false);
   });
 
-  test('accepts with a valid status enum value', () => {
-    const result = validate(memberSchema, { id: 'member-1', name: 'Eve', status: 'active' });
+  test('accepts with a valid status enum value (required spread enum)', () => {
+    const result = validate(memberSchema, validMember);
     expect(result.valid).toBe(true);
   });
 
-  test('accepts without status (optional enum field)', () => {
-    const result = validate(memberSchema, { id: 'member-2', name: 'Frank' });
-    expect(result.valid).toBe(true);
+  test('rejects when required status is missing', () => {
+    const result = validate(memberSchema, { id: 'member-1', name: 'Eve', role: 'admin' });
+    expect(result.valid).toBe(false);
   });
 
   test('rejects with an invalid status value', () => {
-    const result = validate(memberSchema, { id: 'member-3', name: 'Grace', status: 'unknown' });
+    const result = validate(memberSchema, { ...validMember, status: 'unknown' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts with a valid role literal enum value (required literal enum)', () => {
+    const result = validate(memberSchema, { ...validMember, role: 'editor' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects when required role is missing', () => {
+    const result = validate(memberSchema, { id: 'member-2', name: 'Bob', status: 'active' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects with an invalid role value', () => {
+    const result = validate(memberSchema, { ...validMember, role: 'superuser' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts without preferredTheme (optional literal enum)', () => {
+    const result = validate(memberSchema, validMember);
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts with a valid preferredTheme value', () => {
+    const result = validate(memberSchema, { ...validMember, preferredTheme: 'dark' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects with an invalid preferredTheme value', () => {
+    const result = validate(memberSchema, { ...validMember, preferredTheme: 'solarized' });
     expect(result.valid).toBe(false);
   });
 });
