@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
+    "test:example": "vitest run --config example/vitest.config.ts example/",
     "test:u": "vitest run --update",
     "build": "pnpm run compile && pnpm run prepack",
     "clean:build": "rm -rf dist tsconfig.tsbuildinfo && pnpm run build",

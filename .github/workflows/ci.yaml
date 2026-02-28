@@ -53,3 +53,32 @@ jobs:
 
       - name: Run tests
         run: just test-cov
+
+  example-test:
+    name: Example Test
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Use Node 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Bootstrap
+        run: just bootstrap-ci
+
+      - name: Run example tests (before transformation)
+        run: just test-example
+
+      - name: Transform example
+        run: node ./bin/dev.mjs run example
+
+      - name: Run example tests (after transformation)
+        run: just test-example
