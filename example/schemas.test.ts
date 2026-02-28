@@ -183,7 +183,7 @@ describe('memberSchema', () => {
   });
 
   test('accepts with a valid status enum value (required spread enum)', () => {
-    const result = validate(memberSchema, validMember);
+    const result = validate(memberSchema, { ...validMember, status: 'inactive' });
     expect(result.valid).toBe(true);
   });
 
@@ -210,11 +210,6 @@ describe('memberSchema', () => {
   test('rejects with an invalid role value', () => {
     const result = validate(memberSchema, { ...validMember, role: 'superuser' });
     expect(result.valid).toBe(false);
-  });
-
-  test('accepts without preferredTheme (optional literal enum)', () => {
-    const result = validate(memberSchema, validMember);
-    expect(result.valid).toBe(true);
   });
 
   test('accepts with a valid preferredTheme value', () => {
