@@ -74,11 +74,17 @@ jobs:
       - name: Bootstrap
         run: just bootstrap-ci
 
+      - name: Type check example (before transformation)
+        run: just type-check-example
+
       - name: Run example tests (before transformation)
         run: just test-example
 
       - name: Transform example
         run: node ./bin/dev.mjs run example
+
+      - name: Type check example (after transformation)
+        run: just type-check-example
 
       - name: Run example tests (after transformation)
         run: just test-example
