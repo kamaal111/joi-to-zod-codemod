@@ -21,6 +21,10 @@ test-watch:
 test-cov:
     {{ PNR }} test:cov
 
+# Type check example
+type-check-example:
+    {{ PNR }} type-check:example
+
 # Test example
 test-example:
     {{ PNR }} test:example

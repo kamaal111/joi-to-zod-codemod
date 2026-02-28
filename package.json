@@ -23,6 +23,7 @@
     "clean:build": "rm -rf dist tsconfig.tsbuildinfo && pnpm run build",
     "compile": "tsc",
     "type-check": "tsc --noEmit",
+    "type-check:example": "tsc --noEmit --project example/tsconfig.json",
     "lint": "eslint --max-warnings 0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
