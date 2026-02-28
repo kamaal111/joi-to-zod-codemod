@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 
-import { userSchema } from './schemas';
+import { userSchema, configSchema } from './schemas';
 import { validate } from './validate';
 
 describe('userSchema', () => {
@@ -58,5 +58,22 @@ describe('userSchema', () => {
   test('rejects wrong type for age', () => {
     const result = validate(userSchema, { name: 'John', age: 'thirty', email: 'john@example.com' });
     expect(result.valid).toBe(false);
+  });
+});
+
+describe('configSchema', () => {
+  test('accepts a valid config with string keys and number values', () => {
+    const result = validate(configSchema, { timeout: 30, retries: 3 });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects when value is not a number', () => {
+    const result = validate(configSchema, { timeout: 'thirty' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts an empty config object', () => {
+    const result = validate(configSchema, {});
+    expect(result.valid).toBe(true);
   });
 });

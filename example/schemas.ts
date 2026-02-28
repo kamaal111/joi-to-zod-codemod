@@ -5,3 +5,5 @@ export const userSchema = Joi.object().keys({
   age: Joi.number().integer().min(0).max(150),
   email: Joi.string().required(),
 });
+
+export const configSchema = Joi.object().pattern(Joi.string(), Joi.number());
