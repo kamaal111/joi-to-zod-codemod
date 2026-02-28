@@ -33,7 +33,9 @@ export const articleSchema = Joi.object().keys({
 export const memberSchema = Joi.object().keys({
   id: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
   name: Joi.string().min(1).required(),
-  status: Joi.string().valid(...Object.values(MemberStatus)).required(),
+  status: Joi.string()
+    .valid(...Object.values(MemberStatus))
+    .required(),
   role: Joi.string().valid('admin', 'editor', 'viewer').required(),
   preferredTheme: Joi.string().valid('light', 'dark'),
 });
