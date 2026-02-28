@@ -6,20 +6,8 @@ import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 import getJoiPrimitive from '../utils/get-joi-primitive.js';
 import getJoiProperties from '../utils/get-joi-properties.js';
 
-function extractBalancedCallArgs(text: string): string | null {
-  const openIndex = text.indexOf('(');
-  if (openIndex === -1) return null;
-
-  let depth = 0;
-  for (let i = openIndex; i < text.length; i++) {
-    if (text[i] === '(') depth++;
-    else if (text[i] === ')') {
-      if (--depth === 0) return text.slice(openIndex + 1, i);
-    }
-  }
-
-  return null;
-}
+const ARGS_META_IDENTIFIER = 'ARGS';
+const CHAIN_META_IDENTIFIER = 'CHAIN';
 
 async function joiCheckToEnum(modifications: Modifications): Promise<Modifications> {
   const root = modifications.ast.root();
@@ -32,24 +20,23 @@ async function joiCheckToEnum(modifications: Modifications): Promise<Modificatio
       const primitive = getJoiPrimitive(property, joiImportIdentifierName);
       if (primitive == null) return null;
 
-      const propertyComponents = property.text().split('.');
-      const validIndex = propertyComponents.findIndex(component => component.startsWith('valid'));
-      if (validIndex === -1) return null;
+      const validCallNode = property.find({
+        rule: { pattern: `$${CHAIN_META_IDENTIFIER}.valid($$$${ARGS_META_IDENTIFIER})` },
+      });
+      if (validCallNode == null) return null;
 
-      const validProperty = propertyComponents.slice(validIndex).join('.');
-      const validPropertyArgs = extractBalancedCallArgs(validProperty);
-      if (validPropertyArgs == null) return null;
+      const chainNode = validCallNode.getMatch(CHAIN_META_IDENTIFIER);
+      if (chainNode == null) return null;
 
-      const wrappedArgs = validPropertyArgs.trimStart().startsWith('...')
-        ? `[${validPropertyArgs} as [${primitive}, ...Array<${primitive}>]]`
-        : `[${validPropertyArgs}] as [${primitive}, ...Array<${primitive}>]`;
+      const argNodes = validCallNode.getMultipleMatches(ARGS_META_IDENTIFIER).filter(n => n.isNamed());
+      const argsText = argNodes.map(n => n.text()).join(', ');
 
-      const replacement = property
-        .text()
-        .replace(validPropertyArgs, wrappedArgs)
-        .replace('.valid', '.enum');
+      const isSpread = argsText.trimStart().startsWith('...');
+      const wrappedArgs = isSpread
+        ? `[${argsText} as [${primitive}, ...Array<${primitive}>]]`
+        : `[${argsText}] as [${primitive}, ...Array<${primitive}>]`;
 
-      return property.replace(replacement);
+      return validCallNode.replace(`${chainNode.text()}.enum(${wrappedArgs})`);
     },
   );
 
