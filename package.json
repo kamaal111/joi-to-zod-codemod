@@ -25,6 +25,7 @@
     "type-check": "tsc --noEmit",
     "type-check:example": "tsc --noEmit --project example/tsconfig.json",
     "lint": "eslint --max-warnings 0",
+    "lint:example": "eslint --max-warnings 0 example/",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "prepare": "husky",

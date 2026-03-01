@@ -45,6 +45,10 @@ build-clean:
 lint:
     {{ PNR }} lint
 
+# Lint example
+lint-example:
+    {{ PNR }} lint:example
+
 # Type check
 type-check:
     {{ PNR }} type-check

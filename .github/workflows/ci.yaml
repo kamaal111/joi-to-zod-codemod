@@ -77,6 +77,9 @@ jobs:
       - name: Type check example (before transformation)
         run: just type-check-example
 
+      - name: Lint example (before transformation)
+        run: just lint-example
+
       - name: Run example tests (before transformation)
         run: just test-example
 
@@ -85,6 +88,9 @@ jobs:
 
       - name: Type check example (after transformation)
         run: just type-check-example
+
+      - name: Lint example (after transformation)
+        run: just lint-example
 
       - name: Run example tests (after transformation)
         run: just test-example
