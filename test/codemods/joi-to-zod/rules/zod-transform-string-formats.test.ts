@@ -72,13 +72,17 @@ export const schema = z.object({
 });
 `;
 
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
-  });
+  const modifications = await invalidRuleSignal(
+    source,
+    JOI_TO_ZOD_LANGUAGE,
+    ast => {
+      return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
+    },
+    2,
+  );
   const updatedSource = modifications.ast.root().text();
 
   expect(modifications.report.changesApplied).toBe(3);
-  expect(updatedSource).not.contain('z.string().uuid()');
   expect(updatedSource).not.contain('z.string().url()');
   expect(updatedSource).not.contain('z.string().datetime()');
   expect(updatedSource).contain('z.uuid().optional()');

@@ -10,14 +10,12 @@ const STRING_FORMAT_TRANSFORMATIONS: Array<{ from: string; to: string }> = [
 ];
 
 async function zodTransformStringFormats(modifications: Modifications): Promise<Modifications> {
-  let committed = modifications;
-  for (const { from, to } of STRING_FORMAT_TRANSFORMATIONS) {
-    const root = committed.ast.root();
-    const edits = arrays.compactMap(root.findAll({ rule: { pattern: from } }), node => node.replace(to));
-    committed = await commitEditModifications(edits, committed);
-  }
+  const root = modifications.ast.root();
+  const edits = STRING_FORMAT_TRANSFORMATIONS.flatMap(({ from, to }) =>
+    arrays.compactMap(root.findAll({ rule: { pattern: from } }), node => node.replace(to)),
+  );
 
-  return committed;
+  return commitEditModifications(edits, modifications);
 }
 
 export default zodTransformStringFormats;
