@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`replaces deprecated patterns chained with other methods 1`] = `
+exports[`transforms string format patterns chained with other methods 1`] = `
 "import { z } from "zod";
 
 export const schema = z.object({
@@ -11,7 +11,7 @@ export const schema = z.object({
 "
 `;
 
-exports[`replaces deprecated z.string().datetime() with z.iso.datetime() 1`] = `
+exports[`transforms z.string().datetime() to z.iso.datetime() 1`] = `
 "import { z } from "zod";
 
 export const schema = z.object({
@@ -20,7 +20,7 @@ export const schema = z.object({
 "
 `;
 
-exports[`replaces deprecated z.string().url() with z.url() 1`] = `
+exports[`transforms z.string().url() to z.url() 1`] = `
 "import { z } from "zod";
 
 export const schema = z.object({
@@ -29,7 +29,7 @@ export const schema = z.object({
 "
 `;
 
-exports[`replaces deprecated z.string().uuid() with z.uuid() 1`] = `
+exports[`transforms z.string().uuid() to z.uuid() 1`] = `
 "import { z } from "zod";
 
 export const schema = z.object({

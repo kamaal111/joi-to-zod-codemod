@@ -1,10 +1,10 @@
 import { test, expect } from 'vitest';
 
-import zodReplaceDeprecatedStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-replace-deprecated-string-formats';
+import zodTransformStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-transform-string-formats';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import { invalidRuleSignal } from '../../../test-utils/detection-theory';
 
-test('replaces deprecated z.string().uuid() with z.uuid()', async () => {
+test('transforms z.string().uuid() to z.uuid()', async () => {
   const source = `
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const schema = z.object({
 `;
 
   const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return zodReplaceDeprecatedStringFormats(makeJoiToZodInitialModification(ast));
+    return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
@@ -23,7 +23,7 @@ export const schema = z.object({
   expect(updatedSource).contain('z.uuid()');
 });
 
-test('replaces deprecated z.string().url() with z.url()', async () => {
+test('transforms z.string().url() to z.url()', async () => {
   const source = `
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ export const schema = z.object({
 `;
 
   const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return zodReplaceDeprecatedStringFormats(makeJoiToZodInitialModification(ast));
+    return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
@@ -42,7 +42,7 @@ export const schema = z.object({
   expect(updatedSource).contain('z.url()');
 });
 
-test('replaces deprecated z.string().datetime() with z.iso.datetime()', async () => {
+test('transforms z.string().datetime() to z.iso.datetime()', async () => {
   const source = `
 import { z } from "zod";
 
@@ -52,7 +52,7 @@ export const schema = z.object({
 `;
 
   const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return zodReplaceDeprecatedStringFormats(makeJoiToZodInitialModification(ast));
+    return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
@@ -61,7 +61,7 @@ export const schema = z.object({
   expect(updatedSource).contain('z.iso.datetime()');
 });
 
-test('replaces deprecated patterns chained with other methods', async () => {
+test('transforms string format patterns chained with other methods', async () => {
   const source = `
 import { z } from "zod";
 
@@ -73,7 +73,7 @@ export const schema = z.object({
 `;
 
   const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return zodReplaceDeprecatedStringFormats(makeJoiToZodInitialModification(ast));
+    return zodTransformStringFormats(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
