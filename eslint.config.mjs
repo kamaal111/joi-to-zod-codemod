@@ -15,6 +15,18 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   tseslint.configs.recommended,
+  {
+    files: ['src/**/*.ts', 'example/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-deprecated': 'error',
+    },
+  },
   globalIgnores(['dist/**/*'], 'Ignore dist directory'),
   eslintConfigPrettier,
 ]);

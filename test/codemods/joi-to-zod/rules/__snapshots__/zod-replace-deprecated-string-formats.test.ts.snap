@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`replaces deprecated patterns chained with other methods 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  id: z.uuid().optional(),
+  website: z.url().nullable(),
+  createdAt: z.iso.datetime().optional(),
+});
+"
+`;
+
+exports[`replaces deprecated z.string().datetime() with z.iso.datetime() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  createdAt: z.iso.datetime(),
+});
+"
+`;
+
+exports[`replaces deprecated z.string().url() with z.url() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  website: z.url(),
+});
+"
+`;
+
+exports[`replaces deprecated z.string().uuid() with z.uuid() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  id: z.uuid(),
+});
+"
+`;

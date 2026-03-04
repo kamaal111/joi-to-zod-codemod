@@ -194,7 +194,7 @@ export const employee = Joi.object().keys({
   expect(updatedSource).contain('strict()');
 });
 
-test('Joi precision to Zod step', async () => {
+test('Joi precision to Zod multipleOf', async () => {
   const source = `
 import Joi from 'joi';
 
@@ -214,7 +214,7 @@ export const employee = Joi.object().keys({
 
   expect(modifications.report.changesApplied).toBe(2);
   expect(updatedSource).not.contain('precision');
-  expect(updatedSource, updatedSource).contain('step(1 / 10**3)');
+  expect(updatedSource, updatedSource).contain('multipleOf(1 / 10**3)');
 });
 
 test('Joi guid to Zod uuid', async () => {
