@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`transforms string format patterns chained with other methods 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  id: z.uuid().optional(),
+  website: z.url().nullable(),
+  createdAt: z.iso.datetime().optional(),
+});
+"
+`;
+
+exports[`transforms z.string().datetime() to z.iso.datetime() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  createdAt: z.iso.datetime(),
+});
+"
+`;
+
+exports[`transforms z.string().url() to z.url() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  website: z.url(),
+});
+"
+`;
+
+exports[`transforms z.string().uuid() to z.uuid() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  id: z.uuid(),
+});
+"
+`;

@@ -17,6 +17,7 @@ import joiObjectPatternToRecord from './rules/joi-object-pattern-to-record.js';
 import joiAddOptional from './rules/joi-add-optional.js';
 import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
+import zodTransformStringFormats from './rules/zod-transform-string-formats.js';
 
 export const JOI_TO_ZOD_LANGUAGE = Lang.TypeScript;
 
@@ -40,6 +41,7 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiAddOptional)
     .then(joiRemoveRequired)
     .then(joiReferenceToZod)
+    .then(zodTransformStringFormats)
     .then(joiRemoveImport);
 }
 

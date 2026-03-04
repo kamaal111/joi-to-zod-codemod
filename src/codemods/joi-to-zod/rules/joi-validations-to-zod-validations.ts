@@ -33,7 +33,7 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'integer()', zod: 'int()' },
     { joi: 'greater($ARGS)', zod: 'gt($ARGS)' },
     { joi: 'less($ARGS)', zod: 'lt($ARGS)' },
-    { joi: 'precision($ARGS)', zod: 'step(1 / 10**$ARGS)' },
+    { joi: 'precision($ARGS)', zod: 'multipleOf(1 / 10**$ARGS)' },
     { joi: 'multiple($ARGS)', zod: 'multipleOf($ARGS)' },
   ],
 };
