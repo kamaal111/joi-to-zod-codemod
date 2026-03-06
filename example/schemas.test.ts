@@ -1,6 +1,14 @@
 import { describe, test, expect } from 'vitest';
 
-import { userSchema, configSchema, articleSchema, memberSchema, orderSchema } from './schemas';
+import {
+  userSchema,
+  configSchema,
+  articleSchema,
+  memberSchema,
+  orderSchema,
+  contactSchema,
+  callbackSchema,
+} from './schemas';
 import { validate } from './validate';
 
 describe('userSchema', () => {
@@ -287,6 +295,99 @@ describe('orderSchema', () => {
       ...validOrder,
       shippingAddress: { street: '123 Main St', city: 'Springfield', postalCode: 'abc-123' },
     });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('contactSchema', () => {
+  const validContact = {
+    email: 'user@example.com',
+    website: 'example.com',
+    colorCode: 'ff0000',
+    avatar: 'SGVsbG8gV29ybGQ=',
+    preferredUsername: 'john',
+    sessionDuration: 'P1Y2M3D',
+  };
+
+  test('accepts a valid contact with all fields', () => {
+    const result = validate(contactSchema, validContact);
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts when optional fields are missing', () => {
+    const result = validate(contactSchema, {
+      email: 'user@example.com',
+      website: 'example.com',
+      colorCode: 'ff0000',
+      preferredUsername: 'alice',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects when required email is missing', () => {
+    const result = validate(contactSchema, { ...validContact, email: undefined });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when email is not a valid email address', () => {
+    const result = validate(contactSchema, { ...validContact, email: 'not-an-email' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when required website is missing', () => {
+    const result = validate(contactSchema, { ...validContact, website: undefined });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when website is not a valid domain', () => {
+    const result = validate(contactSchema, { ...validContact, website: 'not a domain!' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when required colorCode is missing', () => {
+    const result = validate(contactSchema, { ...validContact, colorCode: undefined });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when colorCode is not a valid hex string', () => {
+    const result = validate(contactSchema, { ...validContact, colorCode: 'gggggg' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when avatar is not a valid base64 string', () => {
+    const result = validate(contactSchema, { ...validContact, avatar: '!!!not-base64!!!' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects when required preferredUsername is missing', () => {
+    const result = validate(contactSchema, { ...validContact, preferredUsername: undefined });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts a lowercase preferredUsername', () => {
+    const result = validate(contactSchema, { ...validContact, preferredUsername: 'alice' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts an uppercase preferredUsername (case is normalised)', () => {
+    const result = validate(contactSchema, { ...validContact, preferredUsername: 'ALICE' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects when sessionDuration is not a valid ISO 8601 duration', () => {
+    const result = validate(contactSchema, { ...validContact, sessionDuration: 'not-a-duration' });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('callbackSchema', () => {
+  test('accepts a function value', () => {
+    const result = validate(callbackSchema, () => {});
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a non-function value', () => {
+    const result = validate(callbackSchema, 'not a function');
     expect(result.valid).toBe(false);
   });
 });
