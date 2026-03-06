@@ -74,7 +74,6 @@ publish version: install-modules build-clean
 
     npm version {{ version }} --no-git-tag-version
     npm publish --no-git-checks
-    pnpm publish --access public --no-git-checks
 
 # Install dependencies
 install-modules:
