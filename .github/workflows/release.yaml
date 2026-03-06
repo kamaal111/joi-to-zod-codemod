@@ -14,10 +14,10 @@ jobs:
       - name: Install just
         uses: taiki-e/install-action@just
 
-      - name: Use Node 22.x
-        uses: actions/setup-node@v4
+      - name: Use Node
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.x
+          node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
       - name: Bootstrap
