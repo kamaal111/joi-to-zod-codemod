@@ -1,0 +1,27 @@
+.github/workflows/ci.yaml
+  6580a5b79babec25 22-23,25,45-46,48,68-69,71
+.node-version
+  6580a5b79babec25 1
+.github/workflows/release.yaml
+  6580a5b79babec25 17-18,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.8",
+  "base_commit_sha": "68f4cac1995c23ac75eac70ef71cab2da624aabf",
+  "prompts": {
+    "6580a5b79babec25": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019cc3d8-9dde-70a3-87cc-7f3787e23310",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Kamaal Farah <kamaal.f1@gmail.com>",
+      "messages": [],
+      "total_additions": 13,
+      "total_deletions": 13,
+      "accepted_lines": 13,
+      "overriden_lines": 0
+    }
+  }
+}
