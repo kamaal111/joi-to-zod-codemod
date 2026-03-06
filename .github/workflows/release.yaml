@@ -19,7 +19,4 @@ jobs:
 
       - run: just bootstrap-ci
 
-      - run: just publish
-        env:
-          VERSION: ${{ github.ref_name }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: just publish ${{ github.ref_name }}

@@ -69,11 +69,11 @@ preview:
     node ./bin/dev.mjs run test/resources
 
 # Publish package to NPM
-publish: install-modules build-clean
+publish version: install-modules build-clean
     #!/bin/zsh
 
-    {{ TSX }} scripts/publish-package-json.ts "${VERSION:-null}"
-
+    npm version {{ version }} --no-git-tag-version
+    npm publish --no-git-checks
     pnpm publish --access public --no-git-checks
 
 # Install dependencies
