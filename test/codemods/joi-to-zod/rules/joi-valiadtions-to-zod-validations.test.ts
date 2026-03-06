@@ -1,8 +1,10 @@
 import { test, expect } from 'vitest';
+import { parseAsync } from '@ast-grep/napi';
 
 import joiValidationsToZodValidations from '../../../../src/codemods/joi-to-zod/rules/joi-validations-to-zod-validations';
+import zodTransformStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-transform-string-formats';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod/index';
-import { invalidRuleSignal } from '../../../test-utils/detection-theory';
+import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
 
 test('Joi alphanum to Zod regex', async () => {
   const source = `
@@ -306,21 +308,19 @@ const apiKey = Joi.string().token();
   expect(updatedSource).contain('regex(/^\\w+$/)');
 });
 
-test('Joi hex to Zod regex', async () => {
+test('Joi hex passes through for later z.hex() transform', async () => {
   const source = `
 import Joi from 'joi';
 
 const color = Joi.string().hex();
 `;
 
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+  const modifications = await validRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
   });
   const updatedSource = modifications.ast.root().text();
 
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('hex');
-  expect(updatedSource).contain('regex(/^[0-9a-fA-F]+$/)');
+  expect(updatedSource).contain('hex()');
 });
 
 test('Joi pattern to Zod regex', async () => {
@@ -376,4 +376,105 @@ export const employee = Joi.object().keys({
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource).not.contain('bool()');
   expect(updatedSource).contain('boolean()');
+});
+
+test('Joi case lower to Zod toLowerCase', async () => {
+  const source = `
+import Joi from 'joi';
+
+const username = Joi.string().case('lower');
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain("case('lower')");
+  expect(updatedSource).contain('toLowerCase()');
+});
+
+test('Joi case upper to Zod toUpperCase', async () => {
+  const source = `
+import Joi from 'joi';
+
+const code = Joi.string().case('upper');
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain("case('upper')");
+  expect(updatedSource).contain('toUpperCase()');
+});
+
+test('Joi domain to Zod hostname', async () => {
+  const source = `
+import Joi from 'joi';
+
+const host = Joi.string().domain();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('domain()');
+  expect(updatedSource).contain('hostname()');
+});
+
+test('Joi failover to Zod catch', async () => {
+  const source = `
+import Joi from 'joi';
+
+const field = Joi.string().failover('default');
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('failover');
+  expect(updatedSource).contain("catch('default')");
+});
+
+test('Joi func to Zod function', async () => {
+  const source = `
+import Joi from 'joi';
+
+const fn = Joi.func();
+`;
+
+  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
+    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  });
+  const updatedSource = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(1);
+  expect(updatedSource).not.contain('func()');
+  expect(updatedSource).contain('function()');
+});
+
+test('Joi hex produces z.hex() after full pipeline (validations + format transform)', async () => {
+  const source = `
+import Joi from 'joi';
+
+const color = Joi.string().hex();
+`;
+
+  const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, source);
+  const afterValidations = await joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  const afterFormatTransform = await zodTransformStringFormats(afterValidations);
+  const updatedSource = afterFormatTransform.ast.root().text();
+
+  expect(updatedSource).contain('hex()');
+  expect(updatedSource).not.contain('regex(');
 });

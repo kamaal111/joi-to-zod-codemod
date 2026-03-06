@@ -7,6 +7,11 @@ const STRING_FORMAT_TRANSFORMATIONS: Array<{ from: string; to: string }> = [
   { from: 'z.string().uuid()', to: 'z.uuid()' },
   { from: 'z.string().url()', to: 'z.url()' },
   { from: 'z.string().datetime()', to: 'z.iso.datetime()' },
+  { from: 'z.string().email()', to: 'z.email()' },
+  { from: 'z.string().hostname()', to: 'z.hostname()' },
+  { from: 'z.string().base64()', to: 'z.base64()' },
+  { from: 'z.string().hex()', to: 'z.hex()' },
+  { from: 'z.string().isoDuration()', to: 'z.iso.duration()' },
 ];
 
 async function zodTransformStringFormats(modifications: Modifications): Promise<Modifications> {
