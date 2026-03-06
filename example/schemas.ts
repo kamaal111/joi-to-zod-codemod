@@ -64,3 +64,19 @@ export const orderSchema = Joi.object().keys({
   discount: Joi.number().min(0).max(100).allow(null),
   metadata: Joi.object().pattern(Joi.string(), Joi.string()),
 });
+
+// contactSchema covers the newly added transformations:
+// email() → z.email(), domain() → hostname() → z.hostname(),
+// hex() → z.hex(), base64() → z.base64(),
+// case('lower') → toLowerCase(), and isoDuration() → z.iso.duration().
+export const contactSchema = Joi.object().keys({
+  email: Joi.string().email().required(),
+  website: Joi.string().domain().required(),
+  colorCode: Joi.string().hex().required(),
+  avatar: Joi.string().base64(),
+  preferredUsername: Joi.string().case('lower').required(),
+  sessionDuration: Joi.string().isoDuration(),
+});
+
+// callbackSchema demonstrates the func() → z.function() transformation.
+export const callbackSchema = Joi.func().required();
