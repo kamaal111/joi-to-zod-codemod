@@ -18,8 +18,10 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'uppercase()', zod: 'toUpperCase()' },
     { joi: 'isoDate()', zod: 'datetime()' },
     { joi: 'token()', zod: 'regex(/^\\w+$/)' },
-    { joi: 'hex()', zod: 'regex(/^[0-9a-fA-F]+$/)' },
     { joi: 'pattern($ARGS)', zod: 'regex($ARGS)' },
+    { joi: "case('lower')", zod: 'toLowerCase()' },
+    { joi: "case('upper')", zod: 'toUpperCase()' },
+    { joi: 'domain()', zod: 'hostname()' },
   ],
   '*': [
     { joi: 'description($ARGS)', zod: 'describe($ARGS)' },
@@ -28,6 +30,8 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'unknown(true)', zod: 'passthrough()' },
     { joi: 'unknown(false)', zod: 'strict()' },
     { joi: 'bool()', zod: 'boolean()' },
+    { joi: 'failover($ARGS)', zod: 'catch($ARGS)' },
+    { joi: 'func()', zod: 'function()' },
   ],
   number: [
     { joi: 'integer()', zod: 'int()' },
@@ -36,6 +40,10 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'precision($ARGS)', zod: 'multipleOf(1 / 10**$ARGS)' },
     { joi: 'multiple($ARGS)', zod: 'multipleOf($ARGS)' },
   ],
+  array: [],
+  date: [],
+  object: [],
+  boolean: [],
 };
 
 async function joiValidationsToZodValidations(modifications: Modifications): Promise<Modifications> {

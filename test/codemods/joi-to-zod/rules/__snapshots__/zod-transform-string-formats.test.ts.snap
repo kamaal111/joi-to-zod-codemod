@@ -11,11 +11,56 @@ export const schema = z.object({
 "
 `;
 
+exports[`transforms z.string().base64() to z.base64() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  data: z.base64(),
+});
+"
+`;
+
 exports[`transforms z.string().datetime() to z.iso.datetime() 1`] = `
 "import { z } from "zod";
 
 export const schema = z.object({
   createdAt: z.iso.datetime(),
+});
+"
+`;
+
+exports[`transforms z.string().email() to z.email() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  email: z.email(),
+});
+"
+`;
+
+exports[`transforms z.string().hex() to z.hex() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  color: z.hex(),
+});
+"
+`;
+
+exports[`transforms z.string().hostname() to z.hostname() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  host: z.hostname(),
+});
+"
+`;
+
+exports[`transforms z.string().isoDuration() to z.iso.duration() 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  duration: z.iso.duration(),
 });
 "
 `;
