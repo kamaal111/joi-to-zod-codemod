@@ -1,3 +1,6 @@
 [submodule "joi"]
 	path = joi
 	url = https://github.com/hapijs/joi
+[submodule "zod"]
+	path = zod
+	url = https://github.com/colinhacks/zod
