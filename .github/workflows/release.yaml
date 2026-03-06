@@ -8,23 +8,18 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install just
-        uses: taiki-e/install-action@just
+      - uses: extractions/setup-just@v3
 
-      - name: Use Node
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
-      - name: Bootstrap
-        run: just bootstrap-ci
+      - run: just bootstrap-ci
 
-      - name: Publish ${{ github.ref_name }}
-        run: just publish
+      - run: just publish
         env:
           VERSION: ${{ github.ref_name }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

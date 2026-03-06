@@ -13,66 +13,52 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - name: Git - Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install just
-        uses: taiki-e/install-action@just
+      - uses: extractions/setup-just@v3
 
-      - name: Use Node
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
-      - name: Bootstrap
-        run: just bootstrap-ci
+      - run: just bootstrap-ci
 
-      - name: Run quality checks
-        run: just quality
+      - run: just quality
 
   test:
     name: Test
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - name: Git - Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install just
-        uses: taiki-e/install-action@just
+      - uses: extractions/setup-just@v3
 
-      - name: Use Node
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
-      - name: Bootstrap
-        run: just bootstrap-ci
+      - run: just bootstrap-ci
 
-      - name: Run tests
-        run: just test-cov
+      - run: just test-cov
 
   example-test:
     name: Example Test
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - name: Git - Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install just
-        uses: taiki-e/install-action@just
+      - uses: extractions/setup-just@v3
 
-      - name: Use Node
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
-      - name: Bootstrap
-        run: just bootstrap-ci
+      - run: just bootstrap-ci
 
       - name: Type check example (before transformation)
         run: just type-check-example
