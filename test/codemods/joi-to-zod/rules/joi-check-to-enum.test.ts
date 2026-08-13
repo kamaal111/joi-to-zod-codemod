@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import joiCheckToEnum from '../../../../src/codemods/joi-to-zod/rules/joi-check-to-enum';
 import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
-import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi check to Zod enum', async () => {
   const source = `
@@ -27,7 +27,7 @@ export const employee = Joi.object().keys({
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource).not.contain('check');
   expect(updatedSource, updatedSource).contain(
-    'job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]])',
+    'job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>])',
   );
 });
 
@@ -53,7 +53,7 @@ export const employee = Joi.object().keys({
 
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource, updatedSource).contain(
-    'job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]).required()',
+    'job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]).required()',
   );
 });
 
@@ -165,6 +165,6 @@ export const employee = Joi.object().keys({
 
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource, updatedSource).contain(
-    'job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]).required()',
+    'job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]).required()',
   );
 });

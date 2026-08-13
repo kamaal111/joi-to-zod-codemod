@@ -1,13 +1,13 @@
-import { test, expect } from 'vitest';
 import { parseAsync } from '@ast-grep/napi';
+import { test, expect } from 'vitest';
 
-import joiObjectPatternToRecord from '../../../../src/codemods/joi-to-zod/rules/joi-object-pattern-to-record';
-import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
 import {
   JOI_TO_ZOD_LANGUAGE,
   makeJoiToZodInitialModification,
   joiToZodModifications,
 } from '../../../../src/codemods/joi-to-zod';
+import joiObjectPatternToRecord from '../../../../src/codemods/joi-to-zod/rules/joi-object-pattern-to-record';
+import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
 
 test('Joi object pattern to Zod record', async () => {
   const source = `

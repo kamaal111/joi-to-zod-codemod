@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import joiRemovePrimitiveForEnum from '../../../../src/codemods/joi-to-zod/rules/joi-remove-primitive-for-enum';
 import { invalidRuleSignal } from '../../../test-utils/detection-theory';
-import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi remove primitive for enum', async () => {
   const source = `

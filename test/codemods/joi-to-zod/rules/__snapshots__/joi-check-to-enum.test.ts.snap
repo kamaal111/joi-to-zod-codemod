@@ -10,7 +10,7 @@ enum Job {
 }
 
 export const employee = Joi.object().keys({
-  job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]),
+  job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]),
 });
 "
 `;
@@ -52,7 +52,7 @@ enum Job {
 }
 
 export const employee = Joi.object().keys({
-  job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]).required(),
+  job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]).required(),
 });
 "
 `;
@@ -67,7 +67,7 @@ enum Job {
 }
 
 export const employee = Joi.object().keys({
-  job: Joi.string().enum([...Object.values(Job) as [string, ...Array<string>]]).required(),
+  job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]).required(),
 });
 "
 `;

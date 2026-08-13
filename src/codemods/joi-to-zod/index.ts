@@ -3,21 +3,21 @@ import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import type { Codemod, Modifications } from '@kamaalio/codemod-kit';
 import type { types } from '@kamaalio/kamaal';
 
-import zodAddImport from './rules/zod-add-import.js';
-import hasJoiImport from './utils/has-joi-import.js';
-import joiRemoveRequired from './rules/joi-remove-required.js';
-import joiReferenceToZod from './rules/joi-reference-to-zod.js';
-import joiCheckToEnum from './rules/joi-check-to-enum.js';
-import joiRemoveImport from './rules/joi-remove-import.js';
-import joiRemovePrimitiveForEnum from './rules/joi-remove-primitive-for-enum.js';
-import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
-import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
-import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
-import joiObjectPatternToRecord from './rules/joi-object-pattern-to-record.js';
 import joiAddOptional from './rules/joi-add-optional.js';
+import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
+import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
+import joiCheckToEnum from './rules/joi-check-to-enum.js';
+import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
+import joiObjectPatternToRecord from './rules/joi-object-pattern-to-record.js';
+import joiReferenceToZod from './rules/joi-reference-to-zod.js';
+import joiRemoveImport from './rules/joi-remove-import.js';
 import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js';
+import joiRemovePrimitiveForEnum from './rules/joi-remove-primitive-for-enum.js';
+import joiRemoveRequired from './rules/joi-remove-required.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
+import zodAddImport from './rules/zod-add-import.js';
 import zodTransformStringFormats from './rules/zod-transform-string-formats.js';
+import hasJoiImport from './utils/has-joi-import.js';
 
 export const JOI_TO_ZOD_LANGUAGE = Lang.TypeScript;
 

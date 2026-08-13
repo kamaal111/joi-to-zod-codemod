@@ -31,9 +31,10 @@ async function joiCheckToEnum(modifications: Modifications): Promise<Modificatio
       const argNodes = validCallNode.getMultipleMatches(ARGS_META_IDENTIFIER).filter(n => n.isNamed());
       const argsText = argNodes.map(n => n.text()).join(', ');
 
-      const isSpread = argsText.trimStart().startsWith('...');
+      const trimmedArgsText = argsText.trimStart();
+      const isSpread = trimmedArgsText.startsWith('...');
       const wrappedArgs = isSpread
-        ? `[${argsText} as [${primitive}, ...Array<${primitive}>]]`
+        ? `${trimmedArgsText.slice(3)} as [${primitive}, ...Array<${primitive}>]`
         : `[${argsText}] as [${primitive}, ...Array<${primitive}>]`;
 
       return validCallNode.replace(`${chainNode.text()}.enum(${wrappedArgs})`);

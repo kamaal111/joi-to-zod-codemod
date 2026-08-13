@@ -1,11 +1,11 @@
 import type { SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 
-import type { JoiPrimitives } from '../types.js';
-import traverseUp from '../../utils/traverse-up.js';
-import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
 import getJoiIdentifierName from './get-joi-identifier-name.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
+import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
+import traverseUp from '../../utils/traverse-up.js';
+import type { JoiPrimitives } from '../types.js';
 
 function getJoiProperties(
   root: SgNode<TypesMap, Kinds<TypesMap>>,
@@ -59,6 +59,7 @@ function getJoiProperties(
         !memberExpressionText.startsWith(joiImportIdentifierName) &&
         (params.primitive != null ||
           params.primitive !== '*' ||
+          // oxlint-disable-next-line typescript/restrict-template-expressions
           !memberExpressionText.includes(`.${params.primitive}()`))
       ) {
         return acc;

@@ -3,10 +3,10 @@ import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import { arrays, type types } from '@kamaalio/kamaal';
 
 import type { JoiPrimitives } from '../types.js';
-import getJoiProperties from './get-joi-properties.js';
-import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
 import getJoiIdentifierName from './get-joi-identifier-name.js';
+import getJoiProperties from './get-joi-properties.js';
 import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
+import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
 
 function replaceJoiValidationWithZodEdits(
   root: SgNode<TypesMap, Kinds<TypesMap>>,

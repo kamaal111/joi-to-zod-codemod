@@ -1,5 +1,4 @@
 import { type Edit, parseAsync } from '@ast-grep/napi';
-
 import type { Modifications } from '@kamaalio/codemod-kit';
 
 async function commitEditModifications(edits: Array<Edit>, modifications: Modifications): Promise<Modifications> {
