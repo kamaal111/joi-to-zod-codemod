@@ -1,3 +1,5 @@
-onlyBuiltDependencies:
-  - '@ast-grep/lang-typescript'
-  - esbuild
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - '@kamaalio/codemod-kit@0.0.43'
