@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+
 import { Args, Command, Flags } from '@oclif/core';
 import { runCodemod } from '@kamaalio/codemod-kit';
 
@@ -8,7 +10,7 @@ const DEFAULT_NO_LOG_OPTION = false;
 
 class Run extends Command {
   static override args = {
-    path: Args.directory({ exists: true, default: '.', description: 'The path to transform' }),
+    path: Args.string({ default: '.', description: 'The file or directory path to transform' }),
   };
   static override description = 'Run codemod';
   static override examples = ['<%= config.bin %> <%= command.id %>'];
@@ -28,6 +30,12 @@ class Run extends Command {
   public async run(): Promise<void> {
     const start = performance.now();
     const { flags, args } = await this.parse(Run);
+
+    try {
+      await fs.stat(args.path);
+    } catch {
+      this.error(`No file or directory found at '${args.path}'`);
+    }
 
     await runCodemod(JOI_TO_ZOD_CODEMOD, args.path, { dry: flags.dry, log: !flags['no-log'] });
 
