@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import joiAlternativesToUnion from '../../../../src/codemods/joi-to-zod/rules/joi-alternatives-to-union';
 import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
-import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi alternatives try to Zod union', async () => {
   const source = `

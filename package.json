@@ -2,12 +2,11 @@
   "name": "@kamaalio/joi-to-zod-codemod",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "publishConfig": {
-    "access": "public"
-  },
+  "keywords": [],
+  "bugs": "https://github.com/kamaal111/joi-to-zod-codemod/issues",
+  "license": "MIT",
+  "author": "Kamaal Farah",
+  "repository": "kamaal111/joi-to-zod-codemod",
   "bin": {
     "joi-to-zod-codemod": "./bin/run.mjs"
   },
@@ -16,6 +15,12 @@
     "bin",
     "oclif.manifest.json"
   ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
@@ -27,20 +32,14 @@
     "compile": "tsc",
     "type-check": "tsc --noEmit",
     "type-check:example": "tsc --noEmit --project example/tsconfig.json",
-    "lint": "eslint --max-warnings 0",
-    "lint:example": "eslint --max-warnings 0 example/",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "lint": "oxlint",
+    "lint:example": "oxlint example/",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "prepare": "husky",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "oclif manifest"
   },
-  "repository": "kamaal111/joi-to-zod-codemod",
-  "bugs": "https://github.com/kamaal111/joi-to-zod-codemod/issues",
-  "keywords": [],
-  "author": "Kamaal Farah",
-  "license": "MIT",
-  "packageManager": "pnpm@10.30.3",
   "dependencies": {
     "@ast-grep/napi": "^0.41.0",
     "@kamaalio/codemod-kit": "^0.0.43",
@@ -49,32 +48,30 @@
     "@oclif/plugin-help": "^6.2.37"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@kamaalio/prettier-config": "^0.1.2",
     "@oclif/test": "^4.1.16",
     "@types/node": "^25.3.2",
     "@vitest/coverage-v8": "^4.0.18",
-    "eslint": "^10.0.2",
-    "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.3.0",
+    "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "joi": "^18.0.2",
     "lint-staged": "^16.2.7",
     "oclif": "^4.22.81",
-    "prettier": "^3.8.1",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.78.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1",
     "vitest": "^4.0.18",
     "zod": "^4.3.6"
   },
-  "engines": {
-    "node": ">=22.0.0"
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts}": "pnpm run lint",
+    "*": "oxfmt --no-error-on-unmatched-pattern"
   },
   "oclif": {
     "bin": "joi-to-zod-codemod",
-    "dirname": "joi-to-zod-codemod",
     "commands": "./dist/commands",
+    "dirname": "joi-to-zod-codemod",
     "plugins": [
       "@oclif/plugin-help"
     ],
@@ -85,8 +82,8 @@
       }
     }
   },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+  "engines": {
+    "node": ">=22.0.0"
   },
-  "prettier": "@kamaalio/prettier-config"
+  "packageManager": "pnpm@10.30.3"
 }

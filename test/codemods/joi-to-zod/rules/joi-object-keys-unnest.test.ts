@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import joiObjectKeysUnnest from '../../../../src/codemods/joi-to-zod/rules/joi-object-keys-unnest';
 import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
-import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi unnest object', async () => {
   const source = `

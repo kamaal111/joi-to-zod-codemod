@@ -1,7 +1,7 @@
-import { expect } from 'vitest';
 import { parseAsync, type SgRoot } from '@ast-grep/napi';
-import type { TypesMap } from '@ast-grep/napi/types/staticTypes';
 import type { NapiLang } from '@ast-grep/napi/types/lang';
+import type { TypesMap } from '@ast-grep/napi/types/staticTypes';
+import { expect } from 'vitest';
 
 import type { Modifications } from '../../src/codemods/types';
 

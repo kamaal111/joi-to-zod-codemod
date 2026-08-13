@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 
+import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 import joiRemoveOptionsFromRegex from '../../../../src/codemods/joi-to-zod/rules/joi-remove-options-from-regex';
 import { invalidRuleSignal } from '../../../test-utils/detection-theory';
-import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
 
 test('Joi remove options from regex', async () => {
   const source = `

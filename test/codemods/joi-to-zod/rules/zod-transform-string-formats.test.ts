@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
-import zodTransformStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-transform-string-formats';
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
+import zodTransformStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-transform-string-formats';
 import { invalidRuleSignal } from '../../../test-utils/detection-theory';
 
 test('transforms z.string().uuid() to z.uuid()', async () => {
