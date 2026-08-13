@@ -38,7 +38,7 @@ The CLI exposes a single command:
 joi-to-zod-codemod run [PATH]
 ```
 
-`PATH` defaults to `.`.
+`PATH` may be a file or a directory, and defaults to `.`.
 
 ### Flags
 
@@ -55,6 +55,9 @@ joi-to-zod-codemod run
 
 # Transform a specific directory
 joi-to-zod-codemod run src
+
+# Transform a single file
+joi-to-zod-codemod run src/schemas.ts
 
 # Preview changes without writing them
 joi-to-zod-codemod run src --dry
