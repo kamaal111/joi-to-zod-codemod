@@ -9,11 +9,6 @@ import getJoiProperties from '../utils/get-joi-properties.js';
 const DATE_BOUNDS = new Set(['min', 'max', 'greater', 'less']);
 const ZOD_BOUNDS: Record<string, string> = { min: 'min', max: 'max', greater: 'min', less: 'max' };
 
-/**
- * Wraps a Joi date bound so it reaches Zod as a `Date`.
- *
- * Joi accepts ISO strings and the literal `'now'`; `z.date().min()` requires a `Date`.
- */
 function coerceBoundArgument(args: string): string {
   const trimmed = args.trim();
   if (trimmed.length === 0) return trimmed;
@@ -23,15 +18,9 @@ function coerceBoundArgument(args: string): string {
   const isNumberLiteral = /^-?\d+(\.\d+)?$/.test(trimmed);
   if (isStringLiteral || isNumberLiteral) return `new Date(${trimmed})`;
 
-  // Already a Date, a reference, or an expression: leave it for the author to judge.
   return trimmed;
 }
 
-/**
- * Rewrites `Joi.date()` chains to `Joi.coerce.date()`, converting bound arguments.
- *
- * Returns `chainText` unchanged when the chain is not rooted at a date.
- */
 function rewriteDateChain(chainText: string, joiIdentifierName: string): string {
   for (let index = 0; index < chainText.length; index += 1) {
     if (!chainText.startsWith(joiIdentifierName, index)) continue;
@@ -41,7 +30,6 @@ function rewriteDateChain(chainText: string, joiIdentifierName: string): string 
     const baseSegment = segments[0];
     if (baseSegment == null || baseSegment.name !== 'date' || baseSegment.args.trim().length > 0) continue;
 
-    // Rewrite right to left so earlier segment indices stay valid.
     const rewritten = segments
       .slice(1)
       .filter(segment => DATE_BOUNDS.has(segment.name))

@@ -15,7 +15,6 @@ test('reads a chain broken across lines', () => {
 });
 
 test('does not descend into a nested chain living in the arguments', () => {
-  // The nested Joi.string() belongs to its own chain and must stay inside args.
   const text = 'Joi.object().keys({ a: Joi.string().min(1) }).required()';
 
   expect(namesOf(text)).toEqual(['object', 'keys', 'required']);

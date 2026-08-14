@@ -65,8 +65,6 @@ function getJoiProperties(
       ) {
         return acc;
       }
-      // Keyed by position, not text: two distinct schemas often share the same source
-      // (`Joi.string()` twice in a file), and keying by text would drop all but the first.
       const range = schemaCallExpression.range();
       const rangeKey = `${range.start.index}:${range.end.index}`;
       if (acc.checkedIn.has(rangeKey)) return acc;

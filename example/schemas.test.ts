@@ -11,6 +11,10 @@ import {
   auditSchema,
   inventorySchema,
   paymentSchema,
+  shipmentSchema,
+  subscriptionSchema,
+  registrationSchema,
+  couponSchema,
 } from './schemas';
 import { validate } from './validate';
 
@@ -434,7 +438,6 @@ describe('inventorySchema', () => {
   });
 
   test('accepts an uppercase alphanumeric sku', () => {
-    // Joi's alphanum() accepts both cases, so a lowercase-only regex would be wrong.
     const result = validate(inventorySchema, { ...validInventory, sku: 'ZZTOP99' });
     expect(result.valid).toBe(true);
   });
@@ -455,7 +458,6 @@ describe('inventorySchema', () => {
   });
 
   test('accepts a weight with more precision than allowed', () => {
-    // Joi rounds to the declared precision rather than rejecting.
     const result = validate(inventorySchema, { ...validInventory, weight: 1.234 });
     expect(result.valid).toBe(true);
   });
@@ -484,6 +486,106 @@ describe('paymentSchema', () => {
 
   test('rejects neither payment method', () => {
     const result = validate(paymentSchema, {});
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('shipmentSchema', () => {
+  test('accepts an express shipment with a tracking number', () => {
+    const result = validate(shipmentSchema, { method: 'express', trackingNumber: 'TRK123' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects an express shipment without a tracking number', () => {
+    const result = validate(shipmentSchema, { method: 'express' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts a ground shipment without a tracking number', () => {
+    const result = validate(shipmentSchema, { method: 'ground' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a ground shipment that carries a tracking number', () => {
+    const result = validate(shipmentSchema, { method: 'ground', trackingNumber: 'TRK123' });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('subscriptionSchema', () => {
+  const validSubscription = { seats: 1, plan: 'free' };
+
+  test('accepts a single seat on the free plan', () => {
+    const result = validate(subscriptionSchema, validSubscription);
+    expect(result.valid).toBe(true);
+  });
+
+  test('requires a billing email once there is more than one seat', () => {
+    const result = validate(subscriptionSchema, { ...validSubscription, seats: 4 });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts multiple seats with a billing email', () => {
+    const result = validate(subscriptionSchema, { ...validSubscription, seats: 4, billingEmail: 'a@b.co' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('requires a purchase order on the team plan', () => {
+    const result = validate(subscriptionSchema, { seats: 1, plan: 'team' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects a purchase order that is too short on the team plan', () => {
+    const result = validate(subscriptionSchema, { seats: 1, plan: 'team', purchaseOrder: 'ab' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts a valid purchase order on the team plan', () => {
+    const result = validate(subscriptionSchema, { seats: 1, plan: 'team', purchaseOrder: 'PO-1234' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('ignores the purchase order rule on the free plan', () => {
+    const result = validate(subscriptionSchema, { ...validSubscription, purchaseOrder: 'ab' });
+    expect(result.valid).toBe(true);
+  });
+});
+
+describe('registrationSchema', () => {
+  test('accepts matching passwords', () => {
+    const result = validate(registrationSchema, { password: 'hunter2!', confirmPassword: 'hunter2!' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects mismatched passwords', () => {
+    const result = validate(registrationSchema, { password: 'hunter2!', confirmPassword: 'hunter3!' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects a password shorter than the minimum', () => {
+    const result = validate(registrationSchema, { password: 'short', confirmPassword: 'short' });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('couponSchema', () => {
+  test('accepts a coupon code', () => {
+    const result = validate(couponSchema, { code: ' save20 ' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a missing coupon code', () => {
+    const result = validate(couponSchema, {});
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts a live referral code', () => {
+    const result = validate(couponSchema, { code: 'SAVE20', referral: 'FRIEND1' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects an expired referral code', () => {
+    const result = validate(couponSchema, { code: 'SAVE20', referral: 'EXPIRED1' });
     expect(result.valid).toBe(false);
   });
 });

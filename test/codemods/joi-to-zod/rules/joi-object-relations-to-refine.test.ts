@@ -93,7 +93,6 @@ export const schema = Joi.object().keys({ a: Joi.string() });
 });
 
 test('leaves a string pattern call untouched', async () => {
-  // `.with` and friends only exist on objects; a string chain must not be rewritten.
   const source = `
 import Joi from 'joi';
 

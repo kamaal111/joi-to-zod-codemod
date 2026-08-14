@@ -137,7 +137,6 @@ export const employee = Joi.object().keys({
   });
   const updatedSource = modifications.ast.root().text();
 
-  // allow(null) -> nullable() and unknown(false) -> strict(); uri() is hoisted by the format rule.
   expect(modifications.report.changesApplied).toBe(2);
   expect(updatedSource).not.contain('unknown');
   expect(updatedSource).contain('strict()');

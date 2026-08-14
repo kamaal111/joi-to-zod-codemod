@@ -2,6 +2,7 @@ import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays, type types } from '@kamaalio/kamaal';
 
 import commitEditModifications from '../../utils/commit-edit-modifications.js';
+import { innermostBy } from '../../utils/innermost-nodes.js';
 import parseCallChain from '../../utils/parse-call-chain.js';
 import splitArguments from '../../utils/split-arguments.js';
 import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
@@ -10,13 +11,6 @@ import getJoiProperties from '../utils/get-joi-properties.js';
 const PRESENT = 'field => field !== undefined';
 const ABSENT = 'field => field === undefined';
 
-/**
- * Joi's object peer relationships, expressed as Zod refinements over the parsed value.
- *
- * Peers arrive as a list of member accesses (`value['a'], value['b']`) rather than as
- * keys indexed through a variable, because indexing a typed object with a `string`
- * variable is an implicit-any error under `strict`.
- */
 const PEER_RELATIONS: Record<string, (peers: string) => string> = {
   or: peers => `refine(value => [${peers}].some(${PRESENT}))`,
   xor: peers => `refine(value => [${peers}].filter(${PRESENT}).length === 1)`,
@@ -25,19 +19,11 @@ const PEER_RELATIONS: Record<string, (peers: string) => string> = {
   nand: peers => `refine(value => ![${peers}].every(${PRESENT}))`,
 };
 
-/**
- * Joi's dependency relationships, which take a subject key plus its dependent peers.
- */
 const DEPENDENCY_RELATIONS: Record<string, (subject: string, peers: string) => string> = {
   with: (subject, peers) => `refine(value => value[${subject}] === undefined || [${peers}].every(${PRESENT}))`,
   without: (subject, peers) => `refine(value => value[${subject}] === undefined || [${peers}].every(${ABSENT}))`,
 };
 
-/**
- * Turns peer key arguments into member accesses on the parsed value.
- *
- * Accepts both call styles Joi allows, `('a', 'b')` and `('a', ['b', 'c'])`.
- */
 function flattenPeers(args: Array<string>): string {
   return args
     .flatMap(argument => {
@@ -69,11 +55,6 @@ function buildRelationReplacement(name: string, args: string): types.Optional<st
   return dependencyRelation(subject, flattenPeers(peers));
 }
 
-/**
- * Rewrites the peer and dependency calls on an object chain into Zod refinements.
- *
- * Returns `chainText` unchanged when the chain is not rooted at an object.
- */
 function rewriteObjectRelations(chainText: string, joiIdentifierName: string): string {
   for (let index = 0; index < chainText.length; index += 1) {
     if (!chainText.startsWith(joiIdentifierName, index)) continue;
@@ -83,7 +64,6 @@ function rewriteObjectRelations(chainText: string, joiIdentifierName: string): s
     const baseSegment = segments[0];
     if (baseSegment == null || baseSegment.name !== 'object') continue;
 
-    // Rewrite right to left so earlier segment indices stay valid.
     const relationSegments = segments
       .slice(1)
       .filter(segment => PEER_RELATIONS[segment.name] != null || DEPENDENCY_RELATIONS[segment.name] != null)
@@ -107,12 +87,15 @@ async function joiObjectRelationsToRefine(modifications: Modifications): Promise
   if (joiIdentifierName == null) return modifications;
 
   const properties = getJoiProperties(root, { primitive: 'object' });
-  const edits = arrays.compactMap(properties, property => {
+  const rewrites = arrays.compactMap(properties, property => {
     const propertyText = property.text();
     const replacement = rewriteObjectRelations(propertyText, joiIdentifierName);
     if (replacement === propertyText) return null;
 
-    return property.replace(replacement);
+    return { property, replacement };
+  });
+  const edits = innermostBy(rewrites, rewrite => rewrite.property).map(rewrite => {
+    return rewrite.property.replace(rewrite.replacement);
   });
   const committed = await commitEditModifications(edits, modifications);
   if (committed.ast.root().text() === modifications.ast.root().text()) return modifications;

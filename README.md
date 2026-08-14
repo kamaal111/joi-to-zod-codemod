@@ -128,12 +128,36 @@ codemod composes one rather than leaving the call behind:
 - `pattern(...)` -> `regex(...)`, `failover` -> `catch`, `bool()` -> `boolean()`
 - Annotation-only calls (`meta`, `tag`, `note`, `example`, `raw`, `cast`, `prefs`) are dropped
 
-**Flagged for manual migration.** These have no mechanical equivalent, so the codemod
+**Conditionals and callbacks.** A Joi conditional lives on the property but needs the whole
+object to evaluate, so it is lifted to an object-level refinement and the property becomes
+optional, with presence enforced by the refinement instead:
+
+```ts
+// before
+detail: Joi.string().when('type', { is: 'a', then: Joi.required(), otherwise: Joi.forbidden() });
+
+// after
+detail: z.string().optional();
+// ...on the object:
+.refine(value => !(value['type'] === 'a') || value['detail'] !== undefined, { path: ['detail'] })
+.refine(value => (value['type'] === 'a') || value['detail'] === undefined, { path: ['detail'] })
+```
+
+- `.when()` handles `is` as a literal, a `Joi.ref(...)`, or a schema, and `then` / `otherwise`
+  as `required()`, `optional()`, `forbidden()`, or a full schema. A bare schema `is` also
+  matches an absent key, because a Joi schema is optional unless it says otherwise.
+- `.assert(subject, schema, message?)` -> a refinement comparing against the referenced key,
+  or parsing the subject against the schema.
+- `.custom(fn)` -> `.transform(fn)`. When the callback uses Joi's `helpers`, it is kept
+  verbatim and handed a shim mapping `helpers.error` / `helpers.message` onto Zod's `ctx`.
+
+**Flagged for manual migration.** What is left has no mechanical equivalent, so the codemod
 leaves a `TODO(joi-to-zod)` comment naming the Zod construct to reach for:
 
-- `.when(...)` -> a discriminated union or an object-level `superRefine`
-- `.custom(...)` -> `refine` or `superRefine`
-- `.assert(...)` -> `superRefine`
+- `.when(...)` using `switch`, `not`, or `break`, or applied outside an object property
+- `.custom(...)` whose callback needs helpers beyond `error` and `message`, or which is
+  followed by calls that a transform would remove (`z.string().transform(f).min` does not exist)
+- `.assert(...)` whose subject is not a plain reference
 
 ## Example
 

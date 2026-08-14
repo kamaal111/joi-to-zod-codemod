@@ -1,12 +1,5 @@
 import { skipLiteralAt } from './scan-call-arguments.js';
 
-/**
- * Splits an argument list on top-level commas.
- *
- * Commas nested inside parentheses, brackets, braces, or literals belong to an inner
- * expression and never split, so `z.string(), { name: 'a', invert: true }` yields two
- * arguments rather than three.
- */
 function splitArguments(args: string): Array<string> {
   if (args.trim().length === 0) return [];
 

@@ -24,5 +24,13 @@
   "env": {
     "builtin": true
   },
-  "ignorePatterns": ["dist/**/*"]
+  "ignorePatterns": ["dist/**/*"],
+  "overrides": [
+    {
+      "files": ["example/**/*.ts"],
+      "rules": {
+        "unicorn/no-thenable": "off"
+      }
+    }
+  ]
 }

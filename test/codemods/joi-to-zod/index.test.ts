@@ -67,7 +67,6 @@ test('converts a representative schema end to end', async () => {
 });
 
 test('runs object pattern before the string pattern mapping', async () => {
-  // Both rules match `pattern(...)`; the record rewrite has to win on an object chain.
   const output = await transform('export const schema = Joi.object().pattern(Joi.string(), Joi.number());');
 
   expect(output).contain('z.record(z.string(), z.number())');
@@ -98,8 +97,45 @@ test('does not mark record key and value schemas optional', async () => {
   expect(output).contain('z.record(z.string(), z.number())');
 });
 
-test('flags constructs that need a manual migration', async () => {
-  const output = await transform('export const schema = Joi.string().custom(value => value);');
+test('converts a conditional, an assertion, and a custom callback together', async () => {
+  const output = await transform(`export const schema = Joi.object().keys({
+  type: Joi.string().required(),
+  detail: Joi.string().when('type', { is: 'a', then: Joi.required(), otherwise: Joi.forbidden() }),
+  password: Joi.string(),
+  confirm: Joi.string(),
+  code: Joi.string().custom(value => value.trim()),
+}).assert('.confirm', Joi.ref('password'), 'must match');`);
+
+  expect(output).toMatchSnapshot();
+  expect(output).not.contain('.when(');
+  expect(output).not.contain('.assert(');
+  expect(output).not.contain('.custom(');
+  expect(output).not.contain('TODO(joi-to-zod)');
+  expect(output).not.contain('Joi');
+});
+
+test('converts the schema inside a conditional branch to zod', async () => {
+  const output = await transform(`export const schema = Joi.object().keys({
+  kind: Joi.string(),
+  id: Joi.string().when('kind', { is: 'user', then: Joi.string().guid().required() }),
+});`);
+
+  expect(output).contain('z.uuid()');
+  expect(output).not.contain('Joi');
+});
+
+test('still flags a conditional form with no mechanical equivalent', async () => {
+  const output = await transform(`export const schema = Joi.object().keys({
+  type: Joi.string(),
+  detail: Joi.string().when('type', { switch: [{ is: 'a', then: Joi.required() }] }),
+});`);
+
+  expect(output).contain('TODO(joi-to-zod)');
+  expect(output).contain('when()');
+});
+
+test('still flags a custom callback needing helpers beyond the shim', async () => {
+  const output = await transform('export const schema = Joi.string().custom((value, helpers) => helpers.state.path);');
 
   expect(output).contain('TODO(joi-to-zod)');
   expect(output).contain('custom()');
@@ -107,6 +143,19 @@ test('flags constructs that need a manual migration', async () => {
 
 test('is idempotent on already-migrated output', async () => {
   const source = `import Joi from 'joi';\n\nexport const schema = Joi.string().required();\n`;
+  const once = await joiToZod(source);
+
+  expect(await joiToZod(once)).toBe(once);
+});
+
+test('is idempotent on migrated conditional output', async () => {
+  const source = `import Joi from 'joi';
+
+export const schema = Joi.object().keys({
+  type: Joi.string(),
+  detail: Joi.string().when('type', { is: 'a', then: Joi.required() }),
+});
+`;
   const once = await joiToZod(source);
 
   expect(await joiToZod(once)).toBe(once);

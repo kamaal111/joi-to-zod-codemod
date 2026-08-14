@@ -10,13 +10,6 @@ import extractNameFromCallExpression from '../../utils/extract-name-from-call-ex
 import scanCallArguments from '../../utils/scan-call-arguments.js';
 import splitArguments from '../../utils/split-arguments.js';
 
-/**
- * Substitutes `$META` tokens in a Zod replacement with the arguments found in the source.
- *
- * A lone meta token (`pattern($ARGS)` -> `regex($ARGS)`) maps to the whole argument
- * string, so replacements are free to contain their own parentheses and commas
- * (`transform(value => Number(value.toFixed($ARGS)))`). Multiple tokens map positionally.
- */
 function substituteMetaArguments(zodValidation: string, metaSpecification: string, foundArguments: string): string {
   const metaTokens = splitArguments(metaSpecification)
     .map(token => token.trim())
@@ -42,11 +35,6 @@ function normalizeArguments(args: string): string {
     .join(',');
 }
 
-/**
- * Rewrites every `.<validationName>(...)` call in `chainText` that matches the target signature.
- *
- * Returns `chainText` unchanged when nothing matches.
- */
 function rewriteChain(
   chainText: string,
   params: {
@@ -70,9 +58,6 @@ function rewriteChain(
       continue;
     }
 
-    // `Joi.required()` inside a `when` clause is a schema in its own right, not a modifier
-    // on one. Deleting it would leave a bare `Joi` behind once the import is dropped.
-    // Renames are still fine on a base call, so this only guards removals.
     const isBaseCall = result.slice(0, match.startIndex).endsWith(params.joiIdentifierName);
     if (isBaseCall && params.zodValidation == null) {
       searchIndex = match.endIndex;
