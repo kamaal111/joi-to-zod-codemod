@@ -72,6 +72,20 @@ jobs:
       - name: Transform example
         run: node ./bin/dev.mjs run example
 
+      # The example tests pass against Joi and Zod alike, so without this a codemod that
+      # silently did nothing would still leave the job green.
+      - name: Verify the example was actually transformed
+        run: |
+          code=$(grep -vE '^\s*//' example/schemas.ts)
+          if ! printf '%s' "$code" | grep -qE "from ['\"]zod['\"]"; then
+            echo "::error::example/schemas.ts does not import zod after transformation"
+            exit 1
+          fi
+          if printf '%s' "$code" | grep -qE "Joi\.|from ['\"]joi['\"]"; then
+            echo "::error::example/schemas.ts still references joi after transformation"
+            exit 1
+          fi
+
       - name: Type check example (after transformation)
         run: just type-check-example
 

@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`adds the zod import after the joi import 1`] = `
+"import Joi from 'joi';
+import { z } from "zod";
+
+export const schema = Joi.string();
+"
+`;

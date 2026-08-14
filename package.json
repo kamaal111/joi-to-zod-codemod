@@ -31,6 +31,7 @@
     "clean:build": "rm -rf dist tsconfig.tsbuildinfo && pnpm run build",
     "compile": "tsc",
     "type-check": "tsc --noEmit",
+    "type-check:test": "tsc --noEmit --project tsconfig.test.json",
     "type-check:example": "tsc --noEmit --project example/tsconfig.json",
     "lint": "oxlint",
     "lint:example": "oxlint example/",

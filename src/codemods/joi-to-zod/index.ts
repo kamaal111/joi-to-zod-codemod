@@ -10,9 +10,12 @@ import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
 import joiBinaryToInstanceof from './rules/joi-binary-to-instanceof.js';
 import joiCheckToEnum from './rules/joi-check-to-enum.js';
 import joiConcatToIntersection from './rules/joi-concat-to-intersection.js';
+import joiDateToCoerceDate from './rules/joi-date-to-coerce-date.js';
 import joiForbiddenToNever from './rules/joi-forbidden-to-never.js';
+import joiFormatsToZodBase from './rules/joi-formats-to-zod-base.js';
 import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
 import joiObjectPatternToRecord from './rules/joi-object-pattern-to-record.js';
+import joiObjectRelationsToRefine from './rules/joi-object-relations-to-refine.js';
 import joiReferenceToZod from './rules/joi-reference-to-zod.js';
 import joiRemoveImport from './rules/joi-remove-import.js';
 import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js';
@@ -20,7 +23,6 @@ import joiRemovePrimitiveForEnum from './rules/joi-remove-primitive-for-enum.js'
 import joiRemoveRequired from './rules/joi-remove-required.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
 import zodAddImport from './rules/zod-add-import.js';
-import zodTransformStringFormats from './rules/zod-transform-string-formats.js';
 import hasJoiImport from './utils/has-joi-import.js';
 
 export const JOI_TO_ZOD_LANGUAGE = Lang.TypeScript;
@@ -39,6 +41,9 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiBinaryToInstanceof)
     .then(joiConcatToIntersection)
     .then(joiForbiddenToNever)
+    .then(joiFormatsToZodBase)
+    .then(joiDateToCoerceDate)
+    .then(joiObjectRelationsToRefine)
     .then(joiValidationsToZodValidations)
     .then(joiCheckToEnum)
     .then(joiRemovePrimitiveForEnum)
@@ -49,7 +54,6 @@ export async function joiToZodModifications(modifications: Modifications): Promi
     .then(joiRemoveRequired)
     .then(joiAddManualMigrationTodo)
     .then(joiReferenceToZod)
-    .then(zodTransformStringFormats)
     .then(joiRemoveImport);
 }
 

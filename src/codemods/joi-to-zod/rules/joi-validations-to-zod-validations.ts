@@ -17,21 +17,22 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
   Array<{ joi: string; zod: types.Optional<string> }>
 > = {
   string: [
-    { joi: 'alphanum()', zod: 'regex(/^[a-z0-9]+$/)' },
-    { joi: 'uri()', zod: 'url()' },
-    { joi: 'guid()', zod: 'uuid()' },
+    // Joi's alphanum accepts both cases; a lowercase-only class would reject 'ABC123'.
+    { joi: 'alphanum()', zod: 'regex(/^[a-zA-Z0-9]+$/)' },
     { joi: 'lowercase()', zod: 'toLowerCase()' },
     { joi: 'uppercase()', zod: 'toUpperCase()' },
-    { joi: 'isoDate()', zod: 'datetime()' },
     { joi: 'token()', zod: 'regex(/^\\w+$/)' },
     { joi: 'pattern($ARGS)', zod: 'regex($ARGS)' },
     { joi: "allow('')", zod: null },
     { joi: "case('lower')", zod: 'toLowerCase()' },
     { joi: "case('upper')", zod: 'toUpperCase()' },
-    { joi: 'domain()', zod: 'hostname()' },
+    { joi: 'ip()', zod: 'refine(value => z.ipv4().safeParse(value).success || z.ipv6().safeParse(value).success)' },
+    { joi: 'truncate()', zod: null },
+    { joi: 'normalize()', zod: 'transform(value => value.normalize())' },
   ],
   '*': [
     { joi: 'description($ARGS)', zod: 'describe($ARGS)' },
+    { joi: 'label($ARGS)', zod: 'describe($ARGS)' },
     { joi: 'allow(null)', zod: 'nullable()' },
     { joi: 'required(false)', zod: 'optional()' },
     { joi: 'unknown(true)', zod: 'passthrough()' },
@@ -40,18 +41,43 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'bool()', zod: 'boolean()' },
     { joi: 'failover($ARGS)', zod: 'catch($ARGS)' },
     { joi: 'func()', zod: 'function()' },
+    { joi: 'invalid($ARGS)', zod: 'refine(value => ![$ARGS].includes(value))' },
+    { joi: 'disallow($ARGS)', zod: 'refine(value => ![$ARGS].includes(value))' },
+    { joi: 'raw()', zod: null },
+    { joi: 'cast($ARGS)', zod: null },
+    { joi: 'meta($ARGS)', zod: null },
+    { joi: 'tag($ARGS)', zod: null },
+    { joi: 'note($ARGS)', zod: null },
+    { joi: 'example($ARGS)', zod: null },
+    { joi: 'prefs($ARGS)', zod: null },
   ],
   number: [
     { joi: 'integer()', zod: 'int()' },
     { joi: 'greater($ARGS)', zod: 'gt($ARGS)' },
     { joi: 'less($ARGS)', zod: 'lt($ARGS)' },
-    { joi: 'precision($ARGS)', zod: 'multipleOf(1 / 10**$ARGS)' },
+    // Joi rounds to the given precision rather than rejecting; multipleOf would reject.
+    { joi: 'precision($ARGS)', zod: 'transform(value => Number(value.toFixed($ARGS)))' },
     { joi: 'multiple($ARGS)', zod: 'multipleOf($ARGS)' },
+    { joi: 'port()', zod: 'int().min(0).max(65535)' },
+    { joi: "sign('positive')", zod: 'positive()' },
+    { joi: "sign('negative')", zod: 'negative()' },
+    { joi: 'unsafe()', zod: null },
   ],
-  array: [],
-  date: [],
-  object: [],
-  boolean: [],
+  array: [
+    { joi: 'unique()', zod: 'refine(value => new Set(value).size === value.length)' },
+    { joi: 'sparse(false)', zod: 'refine(value => value.every(item => item != null))' },
+    { joi: 'sparse()', zod: 'refine(value => value.every(item => item != null))' },
+  ],
+  date: [
+    { joi: 'iso()', zod: null },
+    { joi: 'timestamp()', zod: null },
+  ],
+  object: [
+    { joi: 'min($ARGS)', zod: 'refine(value => Object.keys(value).length >= $ARGS)' },
+    { joi: 'max($ARGS)', zod: 'refine(value => Object.keys(value).length <= $ARGS)' },
+    { joi: 'length($ARGS)', zod: 'refine(value => Object.keys(value).length === $ARGS)' },
+  ],
+  boolean: [{ joi: 'sensitive()', zod: null }],
 };
 
 async function joiValidationsToZodValidations(modifications: Modifications): Promise<Modifications> {

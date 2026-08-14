@@ -53,6 +53,10 @@ lint-example:
 type-check:
     {{ PNR }} type-check
 
+# Type check tests
+type-check-test:
+    {{ PNR }} type-check:test
+
 # Format code
 format:
     {{ PNR }} format
@@ -62,7 +66,7 @@ format-check:
     {{ PNR }} format:check
 
 # Run quality checks
-quality: lint format-check type-check
+quality: lint format-check type-check type-check-test
 
 # Preview command
 preview:
@@ -72,14 +76,12 @@ preview:
 publish version: install-modules build-clean
     #!/bin/zsh
 
-    npm version {{ version }} --no-git-tag-version
-    npm publish --no-git-checks
+    pnpm version {{ version }} --no-git-tag-version
+    pnpm publish --no-git-checks
 
 # Install dependencies
 install-modules:
     #!/bin/zsh
-
-    . ~/.zshrc || true
 
     echo "Y" | pnpm i
 

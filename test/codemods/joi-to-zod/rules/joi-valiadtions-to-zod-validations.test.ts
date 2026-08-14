@@ -3,8 +3,7 @@ import { test, expect } from 'vitest';
 
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod/index';
 import joiValidationsToZodValidations from '../../../../src/codemods/joi-to-zod/rules/joi-validations-to-zod-validations';
-import zodTransformStringFormats from '../../../../src/codemods/joi-to-zod/rules/zod-transform-string-formats';
-import { invalidRuleSignal, validRuleSignal } from '../../../test-utils/detection-theory';
+import { invalidRuleSignal } from '../../../test-utils/detection-theory';
 
 test('Joi alphanum to Zod regex', async () => {
   const source = `
@@ -22,7 +21,7 @@ export const employee = Joi.object().keys({
 
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource).not.contain('alphanum');
-  expect(updatedSource).contain('regex(/^[a-z0-9]+$/)');
+  expect(updatedSource).contain('regex(/^[a-zA-Z0-9]+$/)');
 });
 
 test('Joi integer to Zod int', async () => {
@@ -71,59 +70,6 @@ export const employee = Joi.object().keys({
   expect(modifications.history.length).toBe(2);
   expect(updatedSource).not.contain('description');
   expect(updatedSource).contain("describe('Nickname')");
-});
-
-test('Joi uri to Zod url', async () => {
-  const source = `
-import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  url: Joi.string().uri(),
-});
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('uri');
-  expect(updatedSource).contain('url()');
-});
-
-test('Joi uri to Zod url on constant', async () => {
-  const source = `
-import Joi from 'joi';
-
-const url = Joi.string().uri();
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('uri');
-  expect(updatedSource).contain('url()');
-});
-
-test('Joi allow null to Zod optional', async () => {
-  const source = `
-import Joi from 'joi';
-
-const url = Joi.string().allow(null);
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('allow');
-  expect(updatedSource).contain('nullable()');
 });
 
 test('Joi allow null to Zod nullable', async () => {
@@ -191,12 +137,13 @@ export const employee = Joi.object().keys({
   });
   const updatedSource = modifications.ast.root().text();
 
-  expect(modifications.report.changesApplied).toBe(3);
+  // allow(null) -> nullable() and unknown(false) -> strict(); uri() is hoisted by the format rule.
+  expect(modifications.report.changesApplied).toBe(2);
   expect(updatedSource).not.contain('unknown');
   expect(updatedSource).contain('strict()');
 });
 
-test('Joi precision to Zod multipleOf', async () => {
+test('Joi precision to Zod rounding transform', async () => {
   const source = `
 import Joi from 'joi';
 
@@ -216,26 +163,7 @@ export const employee = Joi.object().keys({
 
   expect(modifications.report.changesApplied).toBe(2);
   expect(updatedSource).not.contain('precision');
-  expect(updatedSource, updatedSource).contain('multipleOf(1 / 10**3)');
-});
-
-test('Joi guid to Zod uuid', async () => {
-  const source = `
-import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  id: Joi.string().guid(),
-});
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('guid');
-  expect(updatedSource).contain('uuid()');
+  expect(updatedSource, updatedSource).contain('transform(value => Number(value.toFixed(3)))');
 });
 
 test('Joi lowercase to Zod toLowerCase', async () => {
@@ -272,25 +200,6 @@ const code = Joi.string().uppercase();
   expect(updatedSource).contain('toUpperCase()');
 });
 
-test('Joi isoDate to Zod datetime', async () => {
-  const source = `
-import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  createdAt: Joi.string().isoDate(),
-});
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('isoDate');
-  expect(updatedSource).contain('datetime()');
-});
-
 test('Joi token to Zod regex', async () => {
   const source = `
 import Joi from 'joi';
@@ -306,21 +215,6 @@ const apiKey = Joi.string().token();
   expect(modifications.report.changesApplied).toBe(1);
   expect(updatedSource).not.contain('token');
   expect(updatedSource).contain('regex(/^\\w+$/)');
-});
-
-test('Joi hex passes through for later z.hex() transform', async () => {
-  const source = `
-import Joi from 'joi';
-
-const color = Joi.string().hex();
-`;
-
-  const modifications = await validRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(updatedSource).contain('hex()');
 });
 
 test('Joi pattern to Zod regex', async () => {
@@ -412,23 +306,6 @@ const code = Joi.string().case('upper');
   expect(updatedSource).contain('toUpperCase()');
 });
 
-test('Joi domain to Zod hostname', async () => {
-  const source = `
-import Joi from 'joi';
-
-const host = Joi.string().domain();
-`;
-
-  const modifications = await invalidRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
-    return joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  });
-  const updatedSource = modifications.ast.root().text();
-
-  expect(modifications.report.changesApplied).toBe(1);
-  expect(updatedSource).not.contain('domain()');
-  expect(updatedSource).contain('hostname()');
-});
-
 test('Joi failover to Zod catch', async () => {
   const source = `
 import Joi from 'joi';
@@ -475,20 +352,4 @@ test('Joi validations convert every overlapping schema chain', async () => {
   expect(output).toBe(
     "import Joi from 'joi';\n\nconst schema = Joi.object({ nested: Joi.string().describe('Nested') }).describe('Schema');",
   );
-});
-
-test('Joi hex produces z.hex() after full pipeline (validations + format transform)', async () => {
-  const source = `
-import Joi from 'joi';
-
-const color = Joi.string().hex();
-`;
-
-  const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, source);
-  const afterValidations = await joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
-  const afterFormatTransform = await zodTransformStringFormats(afterValidations);
-  const updatedSource = afterFormatTransform.ast.root().text();
-
-  expect(updatedSource).contain('hex()');
-  expect(updatedSource).not.contain('regex(');
 });

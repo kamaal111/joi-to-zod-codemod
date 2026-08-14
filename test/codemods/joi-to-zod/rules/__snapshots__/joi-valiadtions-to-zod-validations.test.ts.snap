@@ -7,18 +7,11 @@ const url = Joi.string().nullable();
 "
 `;
 
-exports[`Joi allow null to Zod optional 1`] = `
-"import Joi from 'joi';
-
-const url = Joi.string().nullable();
-"
-`;
-
 exports[`Joi alphanum to Zod regex 1`] = `
 "import Joi from 'joi';
 
 export const employee = Joi.object().keys({
-  name: Joi.string().regex(/^[a-z0-9]+$/).min(3).max(30).required(),
+  name: Joi.string().regex(/^[a-zA-Z0-9]+$/).min(3).max(30).required(),
 });
 "
 `;
@@ -60,13 +53,6 @@ export const employee = Joi.object().keys({
 "
 `;
 
-exports[`Joi domain to Zod hostname 1`] = `
-"import Joi from 'joi';
-
-const host = Joi.string().hostname();
-"
-`;
-
 exports[`Joi failover to Zod catch 1`] = `
 "import Joi from 'joi';
 
@@ -81,15 +67,6 @@ const fn = Joi.function();
 "
 `;
 
-exports[`Joi guid to Zod uuid 1`] = `
-"import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  id: Joi.string().uuid(),
-});
-"
-`;
-
 exports[`Joi integer to Zod int 1`] = `
 "import Joi from 'joi';
 
@@ -99,15 +76,6 @@ const MINIMUM_YEAR = 1970;
 
 export const employee = Joi.object().keys({
   birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR),
-});
-"
-`;
-
-exports[`Joi isoDate to Zod datetime 1`] = `
-"import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  createdAt: Joi.string().datetime(),
 });
 "
 `;
@@ -130,7 +98,7 @@ exports[`Joi no unknowns to Zod strict 1`] = `
 "import Joi from 'joi';
 
 export const employee = Joi.object().keys({
-  name: Joi.string().url(),
+  name: Joi.string().uri(),
 }).nullable().strict();
 "
 `;
@@ -151,7 +119,7 @@ export const employee = Joi.object().keys({
 "
 `;
 
-exports[`Joi precision to Zod multipleOf 1`] = `
+exports[`Joi precision to Zod rounding transform 1`] = `
 "import Joi from 'joi';
 
 import { MAX_YEAR } from './other-source';
@@ -159,7 +127,7 @@ import { MAX_YEAR } from './other-source';
 const MINIMUM_YEAR = 1970;
 
 export const employee = Joi.object().keys({
-  birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR).multipleOf(1 / 10**3),
+  birthyear: Joi.number().int().min(MINIMUM_YEAR).max(MAX_YEAR).transform(value => Number(value.toFixed(3))),
 });
 "
 `;
@@ -182,21 +150,5 @@ exports[`Joi uppercase to Zod toUpperCase 1`] = `
 "import Joi from 'joi';
 
 const code = Joi.string().toUpperCase();
-"
-`;
-
-exports[`Joi uri to Zod url 1`] = `
-"import Joi from 'joi';
-
-export const employee = Joi.object().keys({
-  url: Joi.string().url(),
-});
-"
-`;
-
-exports[`Joi uri to Zod url on constant 1`] = `
-"import Joi from 'joi';
-
-const url = Joi.string().url();
 "
 `;

@@ -40,7 +40,7 @@ class Run extends Command {
     await runCodemod(JOI_TO_ZOD_CODEMOD, args.path, { dry: flags.dry, log: !flags['no-log'] });
 
     const end = performance.now();
-    if (!flags.noLog) {
+    if (!flags['no-log']) {
       console.log(`✨ transformation took ${(end - start).toFixed(2)} milliseconds`);
     }
   }
