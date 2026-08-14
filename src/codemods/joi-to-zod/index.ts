@@ -3,10 +3,14 @@ import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import type { Codemod, Modifications } from '@kamaalio/codemod-kit';
 import type { types } from '@kamaalio/kamaal';
 
+import joiAddManualMigrationTodo from './rules/joi-add-manual-migration-todo.js';
 import joiAddOptional from './rules/joi-add-optional.js';
 import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
 import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
+import joiBinaryToInstanceof from './rules/joi-binary-to-instanceof.js';
 import joiCheckToEnum from './rules/joi-check-to-enum.js';
+import joiConcatToIntersection from './rules/joi-concat-to-intersection.js';
+import joiForbiddenToNever from './rules/joi-forbidden-to-never.js';
 import joiObjectKeysUnnest from './rules/joi-object-keys-unnest.js';
 import joiObjectPatternToRecord from './rules/joi-object-pattern-to-record.js';
 import joiReferenceToZod from './rules/joi-reference-to-zod.js';
@@ -31,15 +35,19 @@ export async function joiToZodModifications(modifications: Modifications): Promi
 
   return zodAddImport(modifications)
     .then(joiRemoveOptionsFromRegex)
+    .then(joiObjectPatternToRecord)
+    .then(joiBinaryToInstanceof)
+    .then(joiConcatToIntersection)
+    .then(joiForbiddenToNever)
     .then(joiValidationsToZodValidations)
     .then(joiCheckToEnum)
     .then(joiRemovePrimitiveForEnum)
     .then(joiObjectKeysUnnest)
     .then(joiArrayItemsUnnest)
     .then(joiAlternativesToUnion)
-    .then(joiObjectPatternToRecord)
     .then(joiAddOptional)
     .then(joiRemoveRequired)
+    .then(joiAddManualMigrationTodo)
     .then(joiReferenceToZod)
     .then(zodTransformStringFormats)
     .then(joiRemoveImport);

@@ -30,6 +30,14 @@ npm install -g @kamaalio/joi-to-zod-codemod
 
 You can also use `pnpm add -g` or `yarn global add`.
 
+If you do not want to install the CLI, run it directly with `npx`:
+
+```bash
+npx @kamaalio/joi-to-zod-codemod run ./src
+```
+
+`npx` downloads the published package temporarily and does not add it to your project's dependencies.
+
 ## CLI usage
 
 The CLI exposes a single command:
@@ -76,6 +84,9 @@ The codemod pipeline currently covers these Joi-to-Zod rewrites:
 - `Joi.array().items(schema)` -> `z.array(schema)`
 - `Joi.alternatives().try(a, b)` -> `z.union([a, b])`
 - `Joi.object().pattern(key, value)` -> `z.record(key, value)`
+- `Joi.binary()` -> `z.instanceof(Buffer)`
+- `schema.concat(otherSchema)` -> `z.intersection(schema, otherSchema)`
+- `Joi.forbidden()` -> `z.never()`
 - `Joi.string().valid(...)` -> `z.enum(...)`
 - `Joi.string().required()` -> required property in `z.object(...)`
 - Optional object properties without `.required()` -> `.optional()`
@@ -147,6 +158,7 @@ export const memberSchema = z
 - The codemod only targets files with a default `import Joi from 'joi'`.
 - The AST language is configured as TypeScript, so this project is best suited to TypeScript-style source files.
 - Coverage is driven by the rules and tests in [`src/codemods/joi-to-zod`](./src/codemods/joi-to-zod) and [`test/codemods/joi-to-zod`](./test/codemods/joi-to-zod). Patterns outside those rules may remain unchanged.
+- The codemod migrates schema declarations. Consumers of Joi's `schema.validate()` result shape and framework-specific schema contracts, such as Hapi route validation, require a manual migration to Zod's parsing APIs.
 - The tool is a codemod, not a semantic migration assistant. Review the output before committing.
 
 ## Library usage

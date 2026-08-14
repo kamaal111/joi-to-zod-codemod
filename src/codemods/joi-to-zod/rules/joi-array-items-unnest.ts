@@ -7,21 +7,27 @@ import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
 const ARGS_META_IDENTIFIER = 'ARGS';
 
 async function joiArrayItemsUnnest(modifications: Modifications): Promise<Modifications> {
-  const root = modifications.ast.root();
-  const joiImportIdentifierName = getJoiIdentifierName(root);
+  const joiImportIdentifierName = getJoiIdentifierName(modifications.ast.root());
   if (joiImportIdentifierName == null) return modifications;
 
-  const edits = arrays.compactMap(
-    root.findAll({ rule: { pattern: `${joiImportIdentifierName}.array().items($${ARGS_META_IDENTIFIER})` } }),
-    node => {
-      const itemsSchema = node.getMatch(ARGS_META_IDENTIFIER);
-      if (itemsSchema == null) return null;
+  return unnestArrayItems(modifications, joiImportIdentifierName);
+}
 
-      return node.replace(`${joiImportIdentifierName}.array(${itemsSchema.text()})`);
-    },
-  );
+async function unnestArrayItems(modifications: Modifications, joiImportIdentifierName: string): Promise<Modifications> {
+  const arrayItems = modifications.ast
+    .root()
+    .findAll({ rule: { pattern: `${joiImportIdentifierName}.array().items($${ARGS_META_IDENTIFIER})` } });
+  const edits = arrays.compactMap(arrayItems, node => {
+    const itemsSchema = node.getMatch(ARGS_META_IDENTIFIER);
+    if (itemsSchema == null) return null;
 
-  return commitEditModifications(edits, modifications);
+    return node.replace(`${joiImportIdentifierName}.array(${itemsSchema.text()})`);
+  });
+  const updated = await commitEditModifications(edits, modifications);
+  const isUnchanged = updated.ast.root().text() === modifications.ast.root().text();
+  if (isUnchanged) return modifications;
+
+  return unnestArrayItems(updated, joiImportIdentifierName);
 }
 
 export default joiArrayItemsUnnest;

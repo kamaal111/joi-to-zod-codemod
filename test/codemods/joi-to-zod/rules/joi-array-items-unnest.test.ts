@@ -1,3 +1,4 @@
+import { parseAsync } from '@ast-grep/napi';
 import { test, expect } from 'vitest';
 
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
@@ -31,4 +32,21 @@ export const tags = Joi.array(Joi.string());
   await validRuleSignal(source, JOI_TO_ZOD_LANGUAGE, ast => {
     return joiArrayItemsUnnest(makeJoiToZodInitialModification(ast));
   });
+});
+
+test('Joi array items unnest converts every overlapping schema chain', async () => {
+  const source = `
+import Joi from 'joi';
+
+export const schemas = {
+  tags: Joi.array().items(Joi.string()),
+  ids: Joi.array().items(Joi.number()),
+};
+`;
+  const ast = await parseAsync(JOI_TO_ZOD_LANGUAGE, source);
+
+  const modifications = await joiArrayItemsUnnest(makeJoiToZodInitialModification(ast));
+
+  expect(modifications.ast.root().text()).toContain('tags: Joi.array(Joi.string())');
+  expect(modifications.ast.root().text()).toContain('ids: Joi.array(Joi.number())');
 });

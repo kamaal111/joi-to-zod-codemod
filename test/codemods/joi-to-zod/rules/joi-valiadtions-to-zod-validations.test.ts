@@ -463,6 +463,20 @@ const fn = Joi.func();
   expect(updatedSource).contain('function()');
 });
 
+test('Joi validations convert every overlapping schema chain', async () => {
+  const ast = await parseAsync(
+    JOI_TO_ZOD_LANGUAGE,
+    "import Joi from 'joi';\n\nconst schema = Joi.object({ nested: Joi.string().description('Nested') }).description('Schema');",
+  );
+
+  const modifications = await joiValidationsToZodValidations(makeJoiToZodInitialModification(ast));
+  const output = modifications.ast.root().text();
+
+  expect(output).toBe(
+    "import Joi from 'joi';\n\nconst schema = Joi.object({ nested: Joi.string().describe('Nested') }).describe('Schema');",
+  );
+});
+
 test('Joi hex produces z.hex() after full pipeline (validations + format transform)', async () => {
   const source = `
 import Joi from 'joi';
