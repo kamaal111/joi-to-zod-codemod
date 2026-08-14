@@ -1,3 +1,4 @@
+import { parseAsync } from '@ast-grep/napi';
 import { test, expect } from 'vitest';
 
 import { JOI_TO_ZOD_LANGUAGE, makeJoiToZodInitialModification } from '../../../../src/codemods/joi-to-zod';
@@ -167,4 +168,29 @@ export const employee = Joi.object().keys({
   expect(updatedSource, updatedSource).contain(
     'job: Joi.string().enum(Object.values(Job) as [string, ...Array<string>]).required()',
   );
+});
+
+test('Joi boolean valid becomes a Zod literal', async () => {
+  const ast = await parseAsync(
+    JOI_TO_ZOD_LANGUAGE,
+    "import Joi from 'joi';\n\nconst schema = Joi.boolean().valid(true);",
+  );
+
+  const modifications = await joiCheckToEnum(makeJoiToZodInitialModification(ast));
+
+  expect(modifications.ast.root().text()).toContain('Joi.literal(true)');
+});
+
+test('Joi check to Zod enum converts every overlapping schema chain', async () => {
+  const ast = await parseAsync(
+    JOI_TO_ZOD_LANGUAGE,
+    "import Joi from 'joi';\n\nconst schema = Joi.string().valid('active').custom(validateValue).valid('inactive');",
+  );
+
+  const modifications = await joiCheckToEnum(makeJoiToZodInitialModification(ast));
+  const output = modifications.ast.root().text();
+
+  expect(modifications.report.changesApplied).toBe(2);
+  expect(output).toContain("Joi.string().enum(['active'] as [string, ...Array<string>])");
+  expect(output).toContain("custom(validateValue).enum(['inactive'] as [string, ...Array<string>])");
 });

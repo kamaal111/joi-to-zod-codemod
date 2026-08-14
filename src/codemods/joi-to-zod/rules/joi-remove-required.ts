@@ -4,10 +4,19 @@ import commitEditModifications from '../../utils/commit-edit-modifications.js';
 import removeJoiValidationEdits from '../utils/remove-joi-validation-edits.js';
 
 async function joiRemoveRequired(modifications: Modifications): Promise<Modifications> {
-  const root = modifications.ast.root();
-  const edits = removeJoiValidationEdits(root, { primitive: '*', validationTargetKey: 'required()' });
+  return removeRequired(modifications);
+}
 
-  return commitEditModifications(edits, modifications);
+async function removeRequired(modifications: Modifications): Promise<Modifications> {
+  const edits = removeJoiValidationEdits(modifications.ast.root(), {
+    primitive: '*',
+    validationTargetKey: 'required()',
+  });
+  const updated = await commitEditModifications(edits, modifications);
+  const isUnchanged = updated.ast.root().text() === modifications.ast.root().text();
+  if (isUnchanged) return modifications;
+
+  return removeRequired(updated);
 }
 
 export default joiRemoveRequired;

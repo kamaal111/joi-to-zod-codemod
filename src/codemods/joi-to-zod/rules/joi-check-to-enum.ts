@@ -10,38 +10,54 @@ const ARGS_META_IDENTIFIER = 'ARGS';
 const CHAIN_META_IDENTIFIER = 'CHAIN';
 
 async function joiCheckToEnum(modifications: Modifications): Promise<Modifications> {
-  const root = modifications.ast.root();
-  const joiImportIdentifierName = getJoiIdentifierName(root);
+  const joiImportIdentifierName = getJoiIdentifierName(modifications.ast.root());
   if (joiImportIdentifierName == null) return modifications;
 
-  const edits = arrays.compactMap(
-    getJoiProperties(root, { primitive: '*', validationName: 'valid($ARGS)' }),
-    property => {
-      const primitive = getJoiPrimitive(property, joiImportIdentifierName);
-      if (primitive == null) return null;
+  return convertChecksToEnums(modifications, joiImportIdentifierName);
+}
 
-      const validCallNode = property.find({
-        rule: { pattern: `$${CHAIN_META_IDENTIFIER}.valid($$$${ARGS_META_IDENTIFIER})` },
-      });
-      if (validCallNode == null) return null;
+async function convertChecksToEnums(
+  modifications: Modifications,
+  joiImportIdentifierName: string,
+): Promise<Modifications> {
+  const properties = getJoiProperties(modifications.ast.root(), { primitive: '*', validationName: 'valid($ARGS)' });
+  const edits = arrays.compactMap(properties, property => {
+    const primitive = getJoiPrimitive(property, joiImportIdentifierName);
+    if (primitive == null) return null;
 
-      const chainNode = validCallNode.getMatch(CHAIN_META_IDENTIFIER);
-      if (chainNode == null) return null;
+    const validCallNode = property.find({
+      rule: { pattern: `$${CHAIN_META_IDENTIFIER}.valid($$$${ARGS_META_IDENTIFIER})` },
+    });
+    if (validCallNode == null) return null;
 
-      const argNodes = validCallNode.getMultipleMatches(ARGS_META_IDENTIFIER).filter(n => n.isNamed());
-      const argsText = argNodes.map(n => n.text()).join(', ');
+    const chainNode = validCallNode.getMatch(CHAIN_META_IDENTIFIER);
+    if (chainNode == null) return null;
 
-      const trimmedArgsText = argsText.trimStart();
-      const isSpread = trimmedArgsText.startsWith('...');
-      const wrappedArgs = isSpread
-        ? `${trimmedArgsText.slice(3)} as [${primitive}, ...Array<${primitive}>]`
-        : `[${argsText}] as [${primitive}, ...Array<${primitive}>]`;
+    const argNodes = validCallNode.getMultipleMatches(ARGS_META_IDENTIFIER).filter(n => n.isNamed());
+    const argsText = argNodes.map(n => n.text()).join(', ');
+    if (primitive !== 'string') {
+      const literals = argNodes.map(node => `${joiImportIdentifierName}.literal(${node.text()})`);
+      if (literals.length === 0) return null;
 
-      return validCallNode.replace(`${chainNode.text()}.enum(${wrappedArgs})`);
-    },
-  );
+      const replacement =
+        literals.length === 1 ? literals[0] : `${joiImportIdentifierName}.union([${literals.join(', ')}])`;
 
-  return commitEditModifications(edits, modifications);
+      return validCallNode.replace(replacement);
+    }
+
+    const trimmedArgsText = argsText.trimStart();
+    const isSpread = trimmedArgsText.startsWith('...');
+    const wrappedArgs = isSpread
+      ? `${trimmedArgsText.slice(3)} as [${primitive}, ...Array<${primitive}>]`
+      : `[${argsText}] as [${primitive}, ...Array<${primitive}>]`;
+
+    return validCallNode.replace(`${chainNode.text()}.enum(${wrappedArgs})`);
+  });
+  const updated = await commitEditModifications(edits, modifications);
+  const isUnchanged = updated.ast.root().text() === modifications.ast.root().text();
+  if (isUnchanged) return modifications;
+
+  return convertChecksToEnums(updated, joiImportIdentifierName);
 }
 
 export default joiCheckToEnum;

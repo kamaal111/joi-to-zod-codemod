@@ -45,34 +45,29 @@ function getJoiProperties(
 
   return propertyIdentifiers.reduce<{ results: Array<SgNode<TypesMap, Kinds<TypesMap>>>; checkedIn: Set<string> }>(
     (acc, propertyIdentifier) => {
-      const pairOrVariableDeclaratorNode = traverseUp(
-        propertyIdentifier,
-        node => node.kind() === 'pair' || node.kind() === 'variable_declarator',
-      );
-      if (pairOrVariableDeclaratorNode == null) return acc;
+      const callExpression = traverseUp(propertyIdentifier, node => node.kind() === 'call_expression');
+      if (callExpression == null) return acc;
 
-      const memberExpression = pairOrVariableDeclaratorNode.find({ rule: { kind: 'member_expression' } });
-      if (memberExpression == null) return acc;
+      let schemaCallExpression = callExpression;
+      while (schemaCallExpression.parent()?.kind() === 'member_expression') {
+        const nextCallExpression = schemaCallExpression.parent()?.parent();
+        if (nextCallExpression?.kind() !== 'call_expression') break;
 
-      const memberExpressionText = memberExpression.text().trim();
+        schemaCallExpression = nextCallExpression;
+      }
+
+      const callExpressionText = schemaCallExpression.text();
+      if (!callExpressionText.startsWith(joiImportIdentifierName)) return acc;
       if (
-        !memberExpressionText.startsWith(joiImportIdentifierName) &&
-        (params.primitive != null ||
-          params.primitive !== '*' ||
-          // oxlint-disable-next-line typescript/restrict-template-expressions
-          !memberExpressionText.includes(`.${params.primitive}()`))
+        params.primitive != null &&
+        params.primitive !== '*' &&
+        !callExpressionText.includes(`.${params.primitive}(`)
       ) {
         return acc;
       }
-
-      const callExpression = memberExpression.parent();
-      if (callExpression == null) return acc;
-      if (callExpression.kind() !== 'call_expression') throw new Error('Unexpected kind found');
-
-      const callExpressionText = callExpression.text();
       if (acc.checkedIn.has(callExpressionText)) return acc;
 
-      acc.results.push(callExpression);
+      acc.results.push(schemaCallExpression);
       acc.checkedIn.add(callExpressionText);
 
       return acc;
