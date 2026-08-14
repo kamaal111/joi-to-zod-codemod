@@ -1,0 +1,76 @@
+src/codemods/joi-to-zod/index.ts
+  s_129a3000010e69::t_26b7b3dd1c98d1 12,40
+  s_129a3000010e69::t_f44103c0775ea7 11,39
+  s_129a3000010e69::t_8015a9dc842828 37
+  s_129a3000010e69::t_8d9ab3f7cc4aad 9,38
+test/codemods/joi-to-zod/rules/joi-array-items-unnest.test.ts
+  s_129a3000010e69::t_f2ce75f021cb9e 36-52
+  s_129a3000010e69::t_b20a85a3794e93 1
+README.md
+  s_d919c055ffb0b8::t_f5810aa23a4b92 33-40
+  s_129a3000010e69::t_f86fd25eb63d12 87,89,161
+  s_129a3000010e69::t_03a935f8835e3c 88
+src/codemods/joi-to-zod/rules/joi-concat-to-intersection.ts
+  s_129a3000010e69::t_1b625613543b9b 1-30
+test/codemods/joi-to-zod/rules/joi-concat-to-intersection.test.ts
+  s_129a3000010e69::t_860f30d4456d71 1-16
+test/codemods/joi-to-zod/rules/joi-forbidden-to-never.test.ts
+  s_129a3000010e69::t_fb622e2ef99764 1-13
+src/codemods/joi-to-zod/rules/joi-array-items-unnest.ts
+  s_129a3000010e69::t_cfa38c3bbe1daf 10,13-21,23-27
+src/codemods/joi-to-zod/rules/joi-check-to-enum.ts
+  s_129a3000010e69::t_b61d074afd4137 13,16-57
+test/codemods/joi-to-zod/rules/joi-binary-to-instanceof.test.ts
+  s_129a3000010e69::t_50f565ec1a9eaf 1-13
+test/codemods/joi-to-zod/rules/joi-remove-required.test.ts
+  s_129a3000010e69::t_912d58c3b61b49 1-9,11-14,17
+  s_129a3000010e69::t_c8b05c4cae8bce 10,15-16
+src/codemods/joi-to-zod/rules/joi-remove-required.ts
+  s_129a3000010e69::t_397e162e6bb60a 7,9-15
+src/codemods/joi-to-zod/rules/joi-binary-to-instanceof.ts
+  s_129a3000010e69::t_a5f1a5396a65f5 1-19
+src/codemods/joi-to-zod/utils/get-joi-properties.ts
+  s_129a3000010e69::t_cc04cef1817918 48-54,56-57,59-60,62-63
+  s_129a3000010e69::t_eec652624e43a0 64
+src/codemods/joi-to-zod/rules/joi-validations-to-zod-validations.ts
+  s_129a3000010e69::t_f17f470da5dd0e 22,33
+  s_129a3000010e69::t_ac0afc7d35a2db 57-67
+test/codemods/joi-to-zod/rules/joi-check-to-enum.test.ts
+  s_129a3000010e69::t_35ea13ca9084a0 172-179
+  s_129a3000010e69::t_f5b18ae9fe70de 1
+  s_0d8c95324aa7e0::t_a8ecf76882a572 180-182
+src/codemods/joi-to-zod/rules/joi-forbidden-to-never.ts
+  s_129a3000010e69::t_6ee3b12c0db129 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9277090f29405f9b8a9611723b16a6ee8608bcdd",
+  "prompts": {},
+  "sessions": {
+    "s_0d8c95324aa7e0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b73f8585-3fe4-4f07-a821-21a101fef9e4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Kamaal Farah <kfarah@box.com>"
+    },
+    "s_129a3000010e69": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b6367d76-b13a-4a5d-b68a-ec9dfe841e0d",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Kamaal Farah <kfarah@box.com>"
+    },
+    "s_d919c055ffb0b8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ffffd-2bd1-71b2-8e62-85463384c8e6",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Kamaal Farah <kfarah@box.com>"
+    }
+  }
+}
