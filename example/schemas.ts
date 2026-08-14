@@ -80,3 +80,28 @@ export const contactSchema = Joi.object().keys({
 
 // callbackSchema demonstrates the func() → z.function() transformation.
 export const callbackSchema = Joi.func().required();
+
+// auditSchema covers date coercion: Joi accepts ISO strings where a plain z.date()
+// would reject them, so the codemod has to emit z.coerce.date().
+export const auditSchema = Joi.object().keys({
+  createdAt: Joi.date().required(),
+  reviewedAt: Joi.date().min('2020-01-01').required(),
+});
+
+// inventorySchema covers the validations that need composed Zod: a mixed-case
+// alphanum, a mid-chain format, precision rounding, port bounds, and array uniqueness.
+export const inventorySchema = Joi.object().keys({
+  sku: Joi.string().alphanum().required(),
+  checksum: Joi.string().min(6).hex().required(),
+  weight: Joi.number().precision(2).required(),
+  servicePort: Joi.number().port().required(),
+  warehouses: Joi.array().items(Joi.string()).unique().required(),
+});
+
+// paymentSchema covers the object peer relationships, which become Zod refinements.
+export const paymentSchema = Joi.object()
+  .keys({
+    cardToken: Joi.string(),
+    bankAccount: Joi.string(),
+  })
+  .xor('cardToken', 'bankAccount');

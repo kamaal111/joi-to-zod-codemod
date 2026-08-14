@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`converts a representative schema end to end 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  id: z.uuid(),
+  website: z.url().optional(),
+  age: z.number().int().min(0),
+  tags: z.array(z.string()).optional(),
+  metadata: z.record(z.string(), z.number()).optional(),
+  kind: z.union([z.string(), z.number()]),
+}).strict();
+"
+`;

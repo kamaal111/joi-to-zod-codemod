@@ -1,9 +1,8 @@
 import { parseAsync, type SgRoot } from '@ast-grep/napi';
 import type { NapiLang } from '@ast-grep/napi/types/lang';
 import type { TypesMap } from '@ast-grep/napi/types/staticTypes';
+import type { Modifications } from '@kamaalio/codemod-kit';
 import { expect } from 'vitest';
-
-import type { Modifications } from '../../src/codemods/types';
 
 export async function invalidRuleSignal(
   source: string,

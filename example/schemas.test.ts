@@ -8,6 +8,9 @@ import {
   orderSchema,
   contactSchema,
   callbackSchema,
+  auditSchema,
+  inventorySchema,
+  paymentSchema,
 } from './schemas';
 import { validate } from './validate';
 
@@ -388,6 +391,99 @@ describe('callbackSchema', () => {
 
   test('rejects a non-function value', () => {
     const result = validate(callbackSchema, 'not a function');
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('auditSchema', () => {
+  const validAudit = { createdAt: '2024-03-01T10:00:00.000Z', reviewedAt: '2024-03-02T10:00:00.000Z' };
+
+  test('accepts ISO date strings', () => {
+    const result = validate(auditSchema, validAudit);
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts Date instances', () => {
+    const result = validate(auditSchema, { createdAt: new Date(), reviewedAt: new Date('2021-01-01') });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a value that is not a date', () => {
+    const result = validate(auditSchema, { ...validAudit, createdAt: 'not-a-date' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects a reviewedAt before the minimum', () => {
+    const result = validate(auditSchema, { ...validAudit, reviewedAt: '2019-01-01T00:00:00.000Z' });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('inventorySchema', () => {
+  const validInventory = {
+    sku: 'ABC123',
+    checksum: 'ff00aa',
+    weight: 1.23,
+    servicePort: 8080,
+    warehouses: ['north', 'south'],
+  };
+
+  test('accepts a valid inventory record', () => {
+    const result = validate(inventorySchema, validInventory);
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts an uppercase alphanumeric sku', () => {
+    // Joi's alphanum() accepts both cases, so a lowercase-only regex would be wrong.
+    const result = validate(inventorySchema, { ...validInventory, sku: 'ZZTOP99' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a sku with a separator', () => {
+    const result = validate(inventorySchema, { ...validInventory, sku: 'abc-123' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects a checksum that is not hexadecimal', () => {
+    const result = validate(inventorySchema, { ...validInventory, checksum: 'zzzzzz' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects a checksum shorter than the minimum', () => {
+    const result = validate(inventorySchema, { ...validInventory, checksum: 'ff0' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('accepts a weight with more precision than allowed', () => {
+    // Joi rounds to the declared precision rather than rejecting.
+    const result = validate(inventorySchema, { ...validInventory, weight: 1.234 });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects a port above the valid range', () => {
+    const result = validate(inventorySchema, { ...validInventory, servicePort: 70000 });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects duplicate warehouses', () => {
+    const result = validate(inventorySchema, { ...validInventory, warehouses: ['north', 'north'] });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('paymentSchema', () => {
+  test('accepts exactly one payment method', () => {
+    const result = validate(paymentSchema, { cardToken: 'tok_123' });
+    expect(result.valid).toBe(true);
+  });
+
+  test('rejects both payment methods together', () => {
+    const result = validate(paymentSchema, { cardToken: 'tok_123', bankAccount: 'acc_456' });
+    expect(result.valid).toBe(false);
+  });
+
+  test('rejects neither payment method', () => {
+    const result = validate(paymentSchema, {});
     expect(result.valid).toBe(false);
   });
 });

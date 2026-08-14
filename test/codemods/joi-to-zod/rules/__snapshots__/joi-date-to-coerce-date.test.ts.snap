@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`converts Joi.date() to a coercing date 1`] = `
+"import Joi from 'joi';
+
+export const schema = Joi.coerce.date();
+"
+`;
+
+exports[`converts the 'now' bound to a Date 1`] = `
+"import Joi from 'joi';
+
+export const schema = Joi.coerce.date().max(new Date());
+"
+`;
+
+exports[`leaves a non-literal bound for the author to judge 1`] = `
+"import Joi from 'joi';
+
+export const schema = Joi.coerce.date().min(startOfYear);
+"
+`;
+
+exports[`maps greater and less onto min and max 1`] = `
+"import Joi from 'joi';
+
+export const schema = Joi.coerce.date().min(new Date('2020-01-01')).max(new Date('2030-01-01'));
+"
+`;
+
+exports[`wraps a string bound in a Date 1`] = `
+"import Joi from 'joi';
+
+export const schema = Joi.coerce.date().min(new Date('2020-01-01'));
+"
+`;
