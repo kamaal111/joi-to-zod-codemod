@@ -22,8 +22,6 @@ async function joiObjectPatternToRecord(modifications: Modifications): Promise<M
     const keyText = keyNode.text();
     const valueText = valueNode.text();
 
-    // When the key is a regex literal, rewrite it to Joi.string().regex(regex)
-    // so the downstream joiReferenceToZod step produces z.record(z.string().regex(...), ...)
     const finalKeyText = keyText.startsWith('/') ? `${joiImportIdentifierName}.string().regex(${keyText})` : keyText;
 
     return node.replace(`${joiImportIdentifierName}.record(${finalKeyText}, ${valueText})`);

@@ -1,11 +1,8 @@
 import type { types } from '@kamaalio/kamaal';
 
 export type CallArgumentsMatch = {
-  /** Index of the leading `.` of the matched call. */
   startIndex: number;
-  /** Index just past the closing `)` of the matched call. */
   endIndex: number;
-  /** Argument source between the balanced parentheses, verbatim. */
   args: string;
 };
 
@@ -16,13 +13,6 @@ function isIdentifierCharacter(character: types.Optional<string>): boolean {
   return character != null && IDENTIFIER_PATTERN.test(character);
 }
 
-/**
- * Decides whether a `/` at `index` opens a regex literal rather than acting as division.
- *
- * A regex may only follow an operator or an opening bracket, never a value, so the
- * preceding non-whitespace character is enough to disambiguate the forms that appear
- * in schema chains.
- */
 function startsRegexLiteral(text: string, index: number): boolean {
   for (let cursor = index - 1; cursor >= 0; cursor -= 1) {
     const character = text[cursor];
@@ -34,11 +24,6 @@ function startsRegexLiteral(text: string, index: number): boolean {
   return true;
 }
 
-/**
- * Advances past the literal starting at `index`, returning the index just past its end.
- *
- * Returns `index` unchanged when no literal starts there.
- */
 export function skipLiteralAt(text: string, index: number): number {
   const character = text[index];
   if (character == null) return index;
@@ -55,7 +40,6 @@ export function skipLiteralAt(text: string, index: number): number {
       continue;
     }
     if (isRegex && current === '[') {
-      // A `/` inside a character class does not close the regex.
       cursor = skipRegexCharacterClass(text, cursor);
       continue;
     }
@@ -78,12 +62,6 @@ function skipRegexCharacterClass(text: string, index: number): number {
   return text.length;
 }
 
-/**
- * Finds the `.<name>(...)` call in `text` and returns its balanced argument span.
- *
- * Literals are skipped, so arguments containing parentheses, dots, or quotes
- * (`Object.values(Job)`, `value => value.slice(0, 3)`, `/^a\/b$/`) resolve correctly.
- */
 function scanCallArguments(text: string, name: string, fromIndex = 0): types.Optional<CallArgumentsMatch> {
   const target = `.${name}`;
 
@@ -95,7 +73,6 @@ function scanCallArguments(text: string, name: string, fromIndex = 0): types.Opt
     }
 
     if (!text.startsWith(target, index)) continue;
-    // Guard against matching `.max` inside `.maxLength`, and `x.min` inside `ax.min`.
     if (isIdentifierCharacter(text[index + target.length])) continue;
 
     let parenthesisIndex = index + target.length;

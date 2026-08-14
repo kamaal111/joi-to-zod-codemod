@@ -7,9 +7,11 @@ import joiAddManualMigrationTodo from './rules/joi-add-manual-migration-todo.js'
 import joiAddOptional from './rules/joi-add-optional.js';
 import joiAlternativesToUnion from './rules/joi-alternatives-to-union.js';
 import joiArrayItemsUnnest from './rules/joi-array-items-unnest.js';
+import joiAssertToRefine from './rules/joi-assert-to-refine.js';
 import joiBinaryToInstanceof from './rules/joi-binary-to-instanceof.js';
 import joiCheckToEnum from './rules/joi-check-to-enum.js';
 import joiConcatToIntersection from './rules/joi-concat-to-intersection.js';
+import joiCustomToTransform from './rules/joi-custom-to-transform.js';
 import joiDateToCoerceDate from './rules/joi-date-to-coerce-date.js';
 import joiForbiddenToNever from './rules/joi-forbidden-to-never.js';
 import joiFormatsToZodBase from './rules/joi-formats-to-zod-base.js';
@@ -22,6 +24,7 @@ import joiRemoveOptionsFromRegex from './rules/joi-remove-options-from-regex.js'
 import joiRemovePrimitiveForEnum from './rules/joi-remove-primitive-for-enum.js';
 import joiRemoveRequired from './rules/joi-remove-required.js';
 import joiValidationsToZodValidations from './rules/joi-validations-to-zod-validations.js';
+import joiWhenToRefine from './rules/joi-when-to-refine.js';
 import zodAddImport from './rules/zod-add-import.js';
 import hasJoiImport from './utils/has-joi-import.js';
 
@@ -38,6 +41,9 @@ export async function joiToZodModifications(modifications: Modifications): Promi
   return zodAddImport(modifications)
     .then(joiRemoveOptionsFromRegex)
     .then(joiObjectPatternToRecord)
+    .then(joiWhenToRefine)
+    .then(joiAssertToRefine)
+    .then(joiCustomToTransform)
     .then(joiBinaryToInstanceof)
     .then(joiConcatToIntersection)
     .then(joiForbiddenToNever)

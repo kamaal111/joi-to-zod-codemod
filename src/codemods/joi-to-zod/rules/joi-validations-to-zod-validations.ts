@@ -17,7 +17,6 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
   Array<{ joi: string; zod: types.Optional<string> }>
 > = {
   string: [
-    // Joi's alphanum accepts both cases; a lowercase-only class would reject 'ABC123'.
     { joi: 'alphanum()', zod: 'regex(/^[a-zA-Z0-9]+$/)' },
     { joi: 'lowercase()', zod: 'toLowerCase()' },
     { joi: 'uppercase()', zod: 'toUpperCase()' },
@@ -55,7 +54,6 @@ const JOI_VALIDATIONS_TO_ZOD_VALIDATION_MAPPING: Record<
     { joi: 'integer()', zod: 'int()' },
     { joi: 'greater($ARGS)', zod: 'gt($ARGS)' },
     { joi: 'less($ARGS)', zod: 'lt($ARGS)' },
-    // Joi rounds to the given precision rather than rejecting; multipleOf would reject.
     { joi: 'precision($ARGS)', zod: 'transform(value => Number(value.toFixed($ARGS)))' },
     { joi: 'multiple($ARGS)', zod: 'multipleOf($ARGS)' },
     { joi: 'port()', zod: 'int().min(0).max(65535)' },

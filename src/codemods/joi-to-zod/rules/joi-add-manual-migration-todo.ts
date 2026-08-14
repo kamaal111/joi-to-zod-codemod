@@ -6,15 +6,17 @@ import getJoiProperties from '../utils/get-joi-properties.js';
 const UNSUPPORTED_VALIDATIONS = [
   {
     name: 'when',
-    guidance: 'replace it with a discriminated union or object-level superRefine',
+    guidance:
+      'switch/not/break conditions and conditionals outside an object property have no direct equivalent; use a discriminated union or an object-level superRefine',
   },
   {
     name: 'custom',
-    guidance: 'replace its Joi helper callback with refine or superRefine',
+    guidance:
+      'its callback needs Joi helpers beyond error and message, or is followed by calls a transform would remove; rewrite it as refine or superRefine',
   },
   {
     name: 'assert',
-    guidance: 'replace its cross-field assertion with superRefine',
+    guidance: 'its subject is not a plain reference; rewrite the cross-field assertion as superRefine',
   },
 ];
 

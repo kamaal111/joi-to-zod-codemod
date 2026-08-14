@@ -27,7 +27,6 @@ test('reads a renamed joi identifier', async () => {
 });
 
 test('returns null for the joi identifier when there is no joi import', async () => {
-  // Callers gate on `== null`, so either nullish value is acceptable here.
   expect(getJoiIdentifierName(await rootOf('const value = 1;')) ?? null).toBeNull();
 });
 

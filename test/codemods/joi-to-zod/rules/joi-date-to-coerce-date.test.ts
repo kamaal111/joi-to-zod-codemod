@@ -18,7 +18,6 @@ export const schema = ${schema};
 }
 
 test('converts Joi.date() to a coercing date', async () => {
-  // Joi accepts ISO strings, so a plain z.date() would reject input Joi allowed.
   expect(await transform('Joi.date()')).contain('Joi.coerce.date()');
 });
 

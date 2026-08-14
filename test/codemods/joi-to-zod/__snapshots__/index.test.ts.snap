@@ -1,5 +1,18 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`converts a conditional, an assertion, and a custom callback together 1`] = `
+"import { z } from "zod";
+
+export const schema = z.object({
+  type: z.string(),
+  detail: z.string().optional(),
+  password: z.string().optional(),
+  confirm: z.string().optional(),
+  code: z.string().transform(value => value.trim()).optional(),
+}).strict().refine(value => value['confirm'] === value['password'], { message: 'must match', path: ['confirm'] }).refine(value => !(value['type'] === 'a') || value['detail'] !== undefined, { message: '"detail" is required when the "when" condition holds', path: ['detail'] }).refine(value => (value['type'] === 'a') || value['detail'] === undefined, { message: '"detail" is forbidden when the "when" condition does not hold', path: ['detail'] });
+"
+`;
+
 exports[`converts a representative schema end to end 1`] = `
 "import { z } from "zod";
 

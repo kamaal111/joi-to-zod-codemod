@@ -45,7 +45,6 @@ const schema = Joi.string().min(3).max(64).hex();
   });
   const updatedSource = modifications.ast.root().text();
 
-  // z.string().hex() is not a Zod 4 method, so a mid-chain format must still reach the base.
   expect(updatedSource).contain('Joi.hex().min(3).max(64)');
   expect(updatedSource).not.contain('.hex().hex()');
 });

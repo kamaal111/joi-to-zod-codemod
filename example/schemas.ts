@@ -81,15 +81,11 @@ export const contactSchema = Joi.object().keys({
 // callbackSchema demonstrates the func() → z.function() transformation.
 export const callbackSchema = Joi.func().required();
 
-// auditSchema covers date coercion: Joi accepts ISO strings where a plain z.date()
-// would reject them, so the codemod has to emit z.coerce.date().
 export const auditSchema = Joi.object().keys({
   createdAt: Joi.date().required(),
   reviewedAt: Joi.date().min('2020-01-01').required(),
 });
 
-// inventorySchema covers the validations that need composed Zod: a mixed-case
-// alphanum, a mid-chain format, precision rounding, port bounds, and array uniqueness.
 export const inventorySchema = Joi.object().keys({
   sku: Joi.string().alphanum().required(),
   checksum: Joi.string().min(6).hex().required(),
@@ -98,10 +94,45 @@ export const inventorySchema = Joi.object().keys({
   warehouses: Joi.array().items(Joi.string()).unique().required(),
 });
 
-// paymentSchema covers the object peer relationships, which become Zod refinements.
 export const paymentSchema = Joi.object()
   .keys({
     cardToken: Joi.string(),
     bankAccount: Joi.string(),
   })
   .xor('cardToken', 'bankAccount');
+
+export const shipmentSchema = Joi.object().keys({
+  method: Joi.string().valid('express', 'ground').required(),
+  trackingNumber: Joi.string().when('method', {
+    is: 'express',
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
+});
+
+export const subscriptionSchema = Joi.object().keys({
+  seats: Joi.number().integer().required(),
+  plan: Joi.string().valid('free', 'team').required(),
+  billingEmail: Joi.string()
+    .email()
+    .when('seats', { is: Joi.number().min(2).required(), then: Joi.required() }),
+  purchaseOrder: Joi.string().when('plan', { is: 'team', then: Joi.string().min(4).required() }),
+});
+
+export const registrationSchema = Joi.object()
+  .keys({
+    password: Joi.string().min(8).required(),
+    confirmPassword: Joi.string().required(),
+  })
+  .assert('.confirmPassword', Joi.ref('password'), 'passwords must match');
+
+export const couponSchema = Joi.object().keys({
+  code: Joi.string()
+    .custom(value => value.trim().toUpperCase())
+    .required(),
+  referral: Joi.string().custom((value, helpers) => {
+    if (value.startsWith('EXPIRED')) return helpers.error('any.invalid');
+
+    return value;
+  }),
+});

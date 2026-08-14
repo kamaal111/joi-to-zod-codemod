@@ -4,11 +4,8 @@ import { skipLiteralAt } from './scan-call-arguments.js';
 
 export type ChainSegment = {
   name: string;
-  /** Argument source between the balanced parentheses, verbatim. */
   args: string;
-  /** Index of the leading `.` of this segment. */
   startIndex: number;
-  /** Index just past the closing `)` of this segment. */
   endIndex: number;
 };
 
@@ -35,13 +32,6 @@ function findClosingParenthesis(text: string, openingIndex: number): types.Optio
   return null;
 }
 
-/**
- * Reads the `.name(...)` segments belonging to the chain rooted at `rootEndIndex`.
- *
- * Only the chain's own segments are returned; nested chains living inside a segment's
- * arguments stay untouched inside `args`, so callers can rewrite one chain without
- * disturbing the schemas nested within it.
- */
 function parseCallChain(text: string, rootEndIndex: number): Array<ChainSegment> {
   const segments: Array<ChainSegment> = [];
   let cursor = rootEndIndex;
