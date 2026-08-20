@@ -1,13 +1,13 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays, type types } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import { innermostBy } from '../../utils/innermost-nodes.js';
-import parseCallChain from '../../utils/parse-call-chain.js';
-import splitArguments from '../../utils/split-arguments.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
-import { buildValueAccessor, parseJoiReferencePath, referenceToAccessor } from '../utils/object-path-accessor.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import { innermostBy } from '../../utils/innermost-nodes.ts';
+import parseCallChain from '../../utils/parse-call-chain.ts';
+import splitArguments from '../../utils/split-arguments.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
+import { buildValueAccessor, parseJoiReferencePath, referenceToAccessor } from '../utils/object-path-accessor.ts';
 
 function buildAssertReplacement(args: string, joiIdentifierName: string): types.Optional<string> {
   const parsedArgs = splitArguments(args).map(argument => argument.trim());

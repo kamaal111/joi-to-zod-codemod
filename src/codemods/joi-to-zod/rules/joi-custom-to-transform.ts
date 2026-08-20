@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays, type types } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import { innermostBy } from '../../utils/innermost-nodes.js';
-import parseCallChain, { type ChainSegment } from '../../utils/parse-call-chain.js';
-import splitArguments from '../../utils/split-arguments.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import { innermostBy } from '../../utils/innermost-nodes.ts';
+import parseCallChain, { type ChainSegment } from '../../utils/parse-call-chain.ts';
+import splitArguments from '../../utils/split-arguments.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 const PRESENCE_SEGMENTS = new Set(['required', 'optional']);
 

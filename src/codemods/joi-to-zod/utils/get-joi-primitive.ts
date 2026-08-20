@@ -2,7 +2,7 @@ import type { SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import type { types } from '@kamaalio/kamaal';
 
-import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
+import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.ts';
 
 function getJoiPrimitive(
   property: SgNode<TypesMap, Kinds<TypesMap>>,

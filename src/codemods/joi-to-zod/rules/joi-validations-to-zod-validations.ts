@@ -2,9 +2,9 @@ import type { Modifications } from '@kamaalio/codemod-kit';
 import { objects } from '@kamaalio/kamaal';
 import type { types } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import type { JoiPrimitives } from '../types.js';
-import replaceJoiValidationWithZodEdits from '../utils/replace-joi-validation-with-zod-edits.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import type { JoiPrimitives } from '../types.ts';
+import replaceJoiValidationWithZodEdits from '../utils/replace-joi-validation-with-zod-edits.ts';
 
 type JoiValidationMapping = {
   primitive: JoiPrimitives;

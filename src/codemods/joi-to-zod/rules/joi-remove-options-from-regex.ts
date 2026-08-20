@@ -1,8 +1,8 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 async function joiRemoveOptionsFromRegex(modifications: Modifications): Promise<Modifications> {
   const root = modifications.ast.root();

@@ -3,12 +3,12 @@ import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import type { Modifications } from '@kamaalio/codemod-kit';
 import type { types } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import scanCallArguments from '../../utils/scan-call-arguments.js';
-import splitArguments from '../../utils/split-arguments.js';
-import traverseUp from '../../utils/traverse-up.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
-import { buildValueAccessor, referenceToAccessor } from '../utils/object-path-accessor.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import scanCallArguments from '../../utils/scan-call-arguments.ts';
+import splitArguments from '../../utils/split-arguments.ts';
+import traverseUp from '../../utils/traverse-up.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
+import { buildValueAccessor, referenceToAccessor } from '../utils/object-path-accessor.ts';
 
 type JoiNode = SgNode<TypesMap, Kinds<TypesMap>>;
 

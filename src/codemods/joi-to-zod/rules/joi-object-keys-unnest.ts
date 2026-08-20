@@ -1,9 +1,9 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import innermostNodes from '../../utils/innermost-nodes.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import innermostNodes from '../../utils/innermost-nodes.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
 
 const ARGS_META_IDENTIFIER = 'ARGS';
 

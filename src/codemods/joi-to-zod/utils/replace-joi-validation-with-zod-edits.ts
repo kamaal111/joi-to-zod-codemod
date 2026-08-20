@@ -2,13 +2,13 @@ import type { Edit, SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 import { arrays, type types } from '@kamaalio/kamaal';
 
-import type { JoiPrimitives } from '../types.js';
-import getJoiIdentifierName from './get-joi-identifier-name.js';
-import getJoiProperties from './get-joi-properties.js';
-import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
-import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
-import scanCallArguments from '../../utils/scan-call-arguments.js';
-import splitArguments from '../../utils/split-arguments.js';
+import type { JoiPrimitives } from '../types.ts';
+import getJoiIdentifierName from './get-joi-identifier-name.ts';
+import getJoiProperties from './get-joi-properties.ts';
+import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.ts';
+import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.ts';
+import scanCallArguments from '../../utils/scan-call-arguments.ts';
+import splitArguments from '../../utils/split-arguments.ts';
 
 function substituteMetaArguments(zodValidation: string, metaSpecification: string, foundArguments: string): string {
   const metaTokens = splitArguments(metaSpecification)
