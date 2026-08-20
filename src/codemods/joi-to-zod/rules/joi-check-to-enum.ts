@@ -1,10 +1,10 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
-import getJoiPrimitive from '../utils/get-joi-primitive.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
+import getJoiPrimitive from '../utils/get-joi-primitive.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 const ARGS_META_IDENTIFIER = 'ARGS';
 const CHAIN_META_IDENTIFIER = 'CHAIN';

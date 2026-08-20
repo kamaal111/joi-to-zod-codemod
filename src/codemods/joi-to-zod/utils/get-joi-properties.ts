@@ -1,11 +1,11 @@
 import type { SgNode } from '@ast-grep/napi';
 import type { Kinds, TypesMap } from '@ast-grep/napi/types/staticTypes.js';
 
-import getJoiIdentifierName from './get-joi-identifier-name.js';
-import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.js';
-import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.js';
-import traverseUp from '../../utils/traverse-up.js';
-import type { JoiPrimitives } from '../types.js';
+import getJoiIdentifierName from './get-joi-identifier-name.ts';
+import extractArgsFromCallExpression from '../../utils/extract-args-from-call-expression.ts';
+import extractNameFromCallExpression from '../../utils/extract-name-from-call-expression.ts';
+import traverseUp from '../../utils/traverse-up.ts';
+import type { JoiPrimitives } from '../types.ts';
 
 function getJoiProperties(
   root: SgNode<TypesMap, Kinds<TypesMap>>,

@@ -1,7 +1,7 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 const UNSUPPORTED_VALIDATIONS = [
   {

@@ -1,8 +1,8 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
 
 const KEY_META_IDENTIFIER = 'KEY';
 const VALUE_META_IDENTIFIER = 'VALUE';

@@ -1,11 +1,11 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays } from '@kamaalio/kamaal';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import parseCallChain from '../../utils/parse-call-chain.js';
-import type { JoiPrimitives } from '../types.js';
-import getJoiIdentifierName from '../utils/get-joi-identifier-name.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import parseCallChain from '../../utils/parse-call-chain.ts';
+import type { JoiPrimitives } from '../types.ts';
+import getJoiIdentifierName from '../utils/get-joi-identifier-name.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 const FORMAT_BASE_TRANSFORMATIONS: Array<{ primitive: JoiPrimitives; joi: string; zod: string }> = [
   { primitive: 'string', joi: 'guid', zod: 'uuid()' },

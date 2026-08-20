@@ -1,8 +1,8 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import getJoiImport from '../utils/get-joi-import.js';
-import hasZodImport from '../utils/has-zod-import.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import getJoiImport from '../utils/get-joi-import.ts';
+import hasZodImport from '../utils/has-zod-import.ts';
 
 async function zodAddImport(modifications: Modifications): Promise<Modifications> {
   const root = modifications.ast.root();

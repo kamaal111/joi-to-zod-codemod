@@ -1,7 +1,7 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import getJoiImport from '../utils/get-joi-import.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import getJoiImport from '../utils/get-joi-import.ts';
 
 async function joiRemoveImport(modifications: Modifications): Promise<Modifications> {
   const root = modifications.ast.root();

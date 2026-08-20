@@ -1,7 +1,7 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import removeJoiValidationEdits from '../utils/remove-joi-validation-edits.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import removeJoiValidationEdits from '../utils/remove-joi-validation-edits.ts';
 
 async function joiRemoveRequired(modifications: Modifications): Promise<Modifications> {
   return removeRequired(modifications);

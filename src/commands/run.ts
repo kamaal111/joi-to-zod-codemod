@@ -2,8 +2,8 @@ import { parseArgs } from 'node:util';
 
 import { loadCodemodConfig, runCodemod, type CodemodConfig } from '@kamaalio/codemod-kit';
 
-import { JOI_TO_ZOD_CODEMOD } from '../codemods/joi-to-zod/index.js';
-import { CliUsageError } from '../errors.js';
+import { JOI_TO_ZOD_CODEMOD } from '../codemods/joi-to-zod/index.ts';
+import { CliUsageError } from '../errors.ts';
 
 const DEFAULT_DRY_RUN_OPTION = false;
 const DEFAULT_NO_LOG_OPTION = false;

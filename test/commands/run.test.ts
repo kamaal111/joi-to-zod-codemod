@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
-import { runCommand } from '../../src/commands/run.js';
-import { captureLog } from '../test-utils/capture-output.js';
+import { runCommand } from '../../src/commands/run.ts';
+import { captureLog } from '../test-utils/capture-output.ts';
 
 test('that it runs run', async () => {
   const { stdout } = await captureLog(() => runCommand(['test/resources', '-d']));

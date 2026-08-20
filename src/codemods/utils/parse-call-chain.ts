@@ -1,6 +1,6 @@
 import type { types } from '@kamaalio/kamaal';
 
-import { skipLiteralAt } from './scan-call-arguments.js';
+import { skipLiteralAt } from './scan-call-arguments.ts';
 
 export type ChainSegment = {
   name: string;

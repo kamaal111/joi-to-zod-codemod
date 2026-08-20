@@ -1,8 +1,8 @@
 import type { Modifications } from '@kamaalio/codemod-kit';
 
-import commitEditModifications from '../../utils/commit-edit-modifications.js';
-import innermostNodes from '../../utils/innermost-nodes.js';
-import getJoiProperties from '../utils/get-joi-properties.js';
+import commitEditModifications from '../../utils/commit-edit-modifications.ts';
+import innermostNodes from '../../utils/innermost-nodes.ts';
+import getJoiProperties from '../utils/get-joi-properties.ts';
 
 const PRESENCE_BEARING_PARENTS = new Set<string>(['pair', 'variable_declarator']);
 

@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
-import { run } from '../src/cli.js';
-import { captureCli } from './test-utils/capture-output.js';
+import { run } from '../src/cli.ts';
+import { captureCli } from './test-utils/capture-output.ts';
 
 test('that no arguments prints the top-level help text', async () => {
   const { stdout, exitCode } = await captureCli(() => run([]));

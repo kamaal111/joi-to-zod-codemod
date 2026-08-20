@@ -1,4 +1,4 @@
-import { skipLiteralAt } from './scan-call-arguments.js';
+import { skipLiteralAt } from './scan-call-arguments.ts';
 
 function splitArguments(args: string): Array<string> {
   if (args.trim().length === 0) return [];

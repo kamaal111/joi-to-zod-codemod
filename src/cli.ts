@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 
-import { RUN_HELP_TEXT, runCommand } from './commands/run.js';
-import { CliUsageError } from './errors.js';
+import { RUN_HELP_TEXT, runCommand } from './commands/run.ts';
+import { CliUsageError } from './errors.ts';
 
 const HELP_FLAGS = new Set(['-h', '--help']);
 const VERSION_FLAGS = new Set(['-v', '--version']);
