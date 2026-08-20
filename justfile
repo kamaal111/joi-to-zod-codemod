@@ -75,8 +75,16 @@ preview:
 # Publish package to NPM
 publish version: install-modules build-clean
     #!/bin/zsh
+    set -e
 
-    pnpm version {{ version }} --no-git-tag-version
+    package_name=$(node -p "require('./package.json').name")
+    status_code=$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/${package_name}/{{ version }}")
+    if [ "$status_code" = "200" ]; then
+      echo "❌ ${package_name}@{{ version }} is already published to npm. Push a new tag with a version that hasn't been published yet." >&2
+      exit 1
+    fi
+
+    pnpm pkg set version="{{ version }}"
     pnpm publish --no-git-checks
 
 # Install dependencies
