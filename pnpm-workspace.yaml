@@ -2,4 +2,4 @@ allowBuilds:
   esbuild: true
 
 minimumReleaseAgeExclude:
-  - '@kamaalio/codemod-kit@0.0.43'
+  - '@kamaalio/codemod-kit@0.0.45'

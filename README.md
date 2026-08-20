@@ -5,6 +5,7 @@
   - [CLI usage](#cli-usage)
     - [Flags](#flags)
     - [Examples](#examples)
+    - [Config](#config)
   - [What it transforms](#what-it-transforms)
   - [Example](#example)
   - [Current constraints](#current-constraints)
@@ -50,10 +51,13 @@ joi-to-zod-codemod run [PATH]
 
 ### Flags
 
-| Flag       | Default | Description                                   |
-| ---------- | ------- | --------------------------------------------- |
-| `--dry`    | `false` | Print what would change without writing files |
-| `--no-log` | `false` | Disable log output                            |
+| Flag       | Default | Description                                                                     |
+| ---------- | ------- | ------------------------------------------------------------------------------- |
+| `--dry`    | `false` | Print what would change without writing files                                   |
+| `--no-log` | `false` | Disable log output                                                              |
+| `--config` | —       | Path to a JSON config file listing the paths to migrate (see [Config](#config)) |
+
+`--config` and `PATH` are mutually exclusive: pass one or the other, not both.
 
 ### Examples
 
@@ -72,7 +76,32 @@ joi-to-zod-codemod run src --dry
 
 # Run quietly
 joi-to-zod-codemod run src --no-log
+
+# Transform the paths listed in a config file
+joi-to-zod-codemod run --config joi-migration-phase1.json
 ```
+
+### Config
+
+For larger or staged migrations, pass `--config` with a JSON file listing the paths to transform instead of a single `PATH`:
+
+```json
+{
+  "paths": ["src/controllers"]
+}
+```
+
+Each entry in `paths` is transformed the same way a positional `PATH` argument would be. The config file can also set `dry_run` to default that run to dry-run mode, without needing `--dry` on the command line, and `log` to control log output, without needing `--no-log`:
+
+```json
+{
+  "paths": ["src/controllers"],
+  "dry_run": true,
+  "log": false
+}
+```
+
+Passing both `--dry` and a config `dry_run` at the same time is an error — pick one. The same applies to `--no-log` and a config `log` — pick one.
 
 ## What it transforms
 

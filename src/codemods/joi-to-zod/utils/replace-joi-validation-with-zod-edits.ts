@@ -16,8 +16,9 @@ function substituteMetaArguments(zodValidation: string, metaSpecification: strin
     .filter(token => token.startsWith('$'));
   if (metaTokens.length === 0) return zodValidation;
 
-  const isSingleWholeToken = metaTokens.length === 1 && metaSpecification.trim() === metaTokens[0];
-  if (isSingleWholeToken) return zodValidation.replaceAll(metaTokens[0] as string, foundArguments);
+  const [singleToken] = metaTokens;
+  const isSingleWholeToken = singleToken != null && metaTokens.length === 1 && metaSpecification.trim() === singleToken;
+  if (isSingleWholeToken) return zodValidation.replaceAll(singleToken, foundArguments);
 
   const foundArgumentsComponents = splitArguments(foundArguments).map(argument => argument.trim());
 
