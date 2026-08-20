@@ -1,5 +1,11 @@
-#!/usr/bin/env -S node --import tsx
+#!/usr/bin/env node
 
-import { execute } from '@oclif/core';
+import { register } from 'tsx/esm/api';
 
-await execute({ development: true, dir: import.meta.url });
+const unregister = register();
+try {
+  const { run } = await import('../src/cli.js');
+  await run();
+} finally {
+  await unregister();
+}
