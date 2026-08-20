@@ -42,8 +42,8 @@
     "prepack": "oclif manifest"
   },
   "dependencies": {
-    "@ast-grep/napi": "^0.41.0",
-    "@kamaalio/codemod-kit": "^0.0.43",
+    "@ast-grep/napi": "^0.45.1",
+    "@kamaalio/codemod-kit": "^0.0.45",
     "@kamaalio/kamaal": "^0.8.0",
     "@oclif/core": "^4.8.1",
     "@oclif/plugin-help": "^6.2.37"

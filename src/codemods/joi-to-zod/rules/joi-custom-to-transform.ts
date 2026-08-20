@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 import type { Modifications } from '@kamaalio/codemod-kit';
 import { arrays, type types } from '@kamaalio/kamaal';
 
@@ -27,7 +29,13 @@ function parseCallbackParameters(callback: string): types.Optional<Array<string>
 function referencedHelperMembers(callback: string, helpersName: string): Set<string> {
   const pattern = new RegExp(String.raw`\b${helpersName}\s*\.\s*([$\w]+)`, 'g');
 
-  return new Set(Array.from(callback.matchAll(pattern), match => match[1] as string));
+  const members = Array.from(callback.matchAll(pattern), match => {
+    assert(match[1] != null, 'the capture group always matches when the pattern matches');
+
+    return match[1];
+  });
+
+  return new Set(members);
 }
 
 function buildCustomReplacement(args: string): types.Optional<string> {
