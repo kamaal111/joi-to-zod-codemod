@@ -12,8 +12,7 @@
   },
   "files": [
     "dist",
-    "bin",
-    "oclif.manifest.json"
+    "bin"
   ],
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +26,7 @@
     "test:cov": "vitest run --coverage",
     "test:example": "vitest run --config example/vitest.config.ts example/",
     "test:u": "vitest run --update",
-    "build": "pnpm run compile && pnpm run prepack",
+    "build": "pnpm run compile",
     "clean:build": "rm -rf dist tsconfig.tsbuildinfo && pnpm run build",
     "compile": "tsc",
     "type-check": "tsc --noEmit",
@@ -37,56 +36,36 @@
     "lint:example": "oxlint example/",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "prepare": "husky",
-    "postpack": "rm -f oclif.manifest.json",
-    "prepack": "oclif manifest"
+    "prepare": "husky"
   },
   "dependencies": {
     "@ast-grep/napi": "^0.45.1",
     "@kamaalio/codemod-kit": "^0.0.45",
-    "@kamaalio/kamaal": "^0.8.0",
-    "@oclif/core": "^4.8.1",
-    "@oclif/plugin-help": "^6.2.37"
+    "@kamaalio/kamaal": "^0.9.11"
   },
   "devDependencies": {
-    "@oclif/test": "^4.1.16",
-    "@types/node": "^25.3.2",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@types/node": "^26.2.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
-    "joi": "^18.0.2",
-    "lint-staged": "^16.2.7",
-    "oclif": "^4.22.81",
-    "oxfmt": "^0.60.0",
-    "oxlint": "^1.78.0",
+    "joi": "^18.2.4",
+    "lint-staged": "^17.3.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "zod": "^4.3.6"
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11",
+    "zod": "^4.4.3"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,ts}": "pnpm run lint",
     "*": "oxfmt --no-error-on-unmatched-pattern"
   },
-  "oclif": {
-    "bin": "joi-to-zod-codemod",
-    "commands": "./dist/commands",
-    "dirname": "joi-to-zod-codemod",
-    "plugins": [
-      "@oclif/plugin-help"
-    ],
-    "topicSeparator": " ",
-    "topics": {
-      "run": {
-        "description": "Run codemod"
-      }
-    }
-  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.17.0",
+      "version": "11.22.0",
       "onFail": "download"
     }
   },
