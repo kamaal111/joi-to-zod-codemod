@@ -18,19 +18,5 @@ eval "$(atuin init zsh)"
 
 export PATH="$PATH:/root/.local/bin"
 
-FNM_PATH="~/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
-  export PATH="$FNM_PATH:$PATH"
-  eval "$(fnm env --shell zsh)"
-fi
-
-# pnpm
-export PNPM_HOME="/Users/kamaal/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
 alias pn=pnpm
 alias pnx=pnpm exec
