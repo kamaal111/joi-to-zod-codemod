@@ -23,6 +23,8 @@ jobs:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
+      - uses: pnpm/action-setup@v4
+
       - run: just bootstrap-ci
 
       - run: just publish ${{ github.ref_name }}

@@ -15,16 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: extractions/setup-just@v3
-
-      - uses: actions/setup-node@v6
+      - name: Bootstrap
+        uses: devcontainers/ci@v0.3
         with:
-          node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just bootstrap
 
-      - run: just bootstrap-ci
-
-      - run: just quality
+      - name: Quality
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just quality
 
   test:
     name: Test
@@ -33,16 +36,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: extractions/setup-just@v3
-
-      - uses: actions/setup-node@v6
+      - name: Bootstrap
+        uses: devcontainers/ci@v0.3
         with:
-          node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just bootstrap
 
-      - run: just bootstrap-ci
-
-      - run: just test-cov
+      - name: Test
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just test-cov
 
   example-test:
     name: Example Test
@@ -51,26 +57,40 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: extractions/setup-just@v3
-
-      - uses: actions/setup-node@v6
+      - name: Bootstrap
+        uses: devcontainers/ci@v0.3
         with:
-          node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
-
-      - run: just bootstrap-ci
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just bootstrap
 
       - name: Type check example (before transformation)
-        run: just type-check-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just type-check-example
 
       - name: Lint example (before transformation)
-        run: just lint-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just lint-example
 
       - name: Run example tests (before transformation)
-        run: just test-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just test-example
 
       - name: Transform example
-        run: node ./bin/dev.mjs run example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: node ./bin/dev.mjs run example
 
       # The example tests pass against Joi and Zod alike, so without this a codemod that
       # silently did nothing would still leave the job green.
@@ -87,10 +107,22 @@ jobs:
           fi
 
       - name: Type check example (after transformation)
-        run: just type-check-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just type-check-example
 
       - name: Lint example (after transformation)
-        run: just lint-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just lint-example
 
       - name: Run example tests (after transformation)
-        run: just test-example
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just test-example

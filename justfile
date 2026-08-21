@@ -94,7 +94,7 @@ install-modules:
     echo "Y" | pnpm i
 
 # Bootstrap project
-bootstrap: install-node enable-corepack install-modules
+bootstrap: install-modules
 
 # Set up dev container. This step runs after building the dev container
 [linux]
@@ -104,29 +104,10 @@ post-dev-container-create:
 
 # Bootstrap for CI
 [linux]
-bootstrap-ci: install-zsh enable-corepack install-modules
+bootstrap-ci: install-zsh install-modules
 
 [private]
 [linux]
 install-zsh:
     sudo apt-get update
     sudo apt-get install -y zsh
-
-[private]
-install-node:
-    #!/bin/zsh
-
-    curl -fsSL https://fnm.vercel.app/install | bash
-
-    . ~/.zshrc || true
-
-    fnm completions --shell zsh
-    fnm install
-
-[private]
-enable-corepack:
-    #!/bin/zsh
-
-    . ~/.zshrc || true
-
-    corepack enable
