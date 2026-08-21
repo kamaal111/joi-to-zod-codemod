@@ -10,7 +10,7 @@ ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 COPY package.json /tmp/package.json
 RUN curl -fsSL https://get.pnpm.io/install.sh \
-    | env PNPM_VERSION="$(node -p "require('/tmp/package.json').devEngines.packageManager.version")" SHELL="$(which bash)" bash -
+    | env PNPM_VERSION="$(jq -r '.devEngines.packageManager.version' /tmp/package.json)" SHELL="$(which bash)" bash -
 
 # Oh My Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
