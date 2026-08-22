@@ -5,6 +5,8 @@ PNR := PN + " run"
 PNX := PN + " exec"
 TSX := PNX + " tsx"
 
+CLI_BIN := if env_var_or_default("CLI_ENTRY", "src") == "dist" { "bin/run.mjs" } else { "bin/dev.mjs" }
+
 # List available commands
 default:
     just --list --unsorted
@@ -71,6 +73,10 @@ quality: lint format-check type-check type-check-test
 # Preview command
 preview:
     node ./bin/dev.mjs run test/resources
+
+# Transform the example app
+transform-example:
+    node {{ CLI_BIN }} run example
 
 # Publish package to NPM
 publish version: install-modules build-clean

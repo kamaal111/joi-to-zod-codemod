@@ -30,9 +30,14 @@ jobs:
           runCmd: just quality
 
   test:
-    name: Test
+    name: Test (${{ matrix.cli_entry }})
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cli_entry: [src, dist]
+    env:
+      CLI_ENTRY: ${{ matrix.cli_entry }}
     steps:
       - uses: actions/checkout@v6
 
@@ -43,17 +48,30 @@ jobs:
           push: never
           runCmd: just bootstrap
 
+      - name: Build
+        if: matrix.cli_entry == 'dist'
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          runCmd: just build-clean
+
       - name: Test
         uses: devcontainers/ci@v0.3
         with:
           imageName: joi-to-zod-codemod-devcontainer
           push: never
-          runCmd: just test-cov
+          env: |
+            CLI_ENTRY
+          runCmd: ${{ matrix.cli_entry == 'dist' && 'just test' || 'just test-cov' }}
 
   example-test:
-    name: Example Test
+    name: Example Test (${{ matrix.cli_entry }})
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cli_entry: [src, dist]
     steps:
       - uses: actions/checkout@v6
 
@@ -85,12 +103,24 @@ jobs:
           push: never
           runCmd: just test-example
 
-      - name: Transform example
+      - name: Build
+        if: matrix.cli_entry == 'dist'
         uses: devcontainers/ci@v0.3
         with:
           imageName: joi-to-zod-codemod-devcontainer
           push: never
-          runCmd: node ./bin/dev.mjs run example
+          runCmd: just build-clean
+
+      - name: Transform example
+        uses: devcontainers/ci@v0.3
+        env:
+          CLI_ENTRY: ${{ matrix.cli_entry }}
+        with:
+          imageName: joi-to-zod-codemod-devcontainer
+          push: never
+          env: |
+            CLI_ENTRY
+          runCmd: just transform-example
 
       # The example tests pass against Joi and Zod alike, so without this a codemod that
       # silently did nothing would still leave the job green.
