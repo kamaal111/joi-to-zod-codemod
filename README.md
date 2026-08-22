@@ -277,3 +277,10 @@ Useful commands:
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+## CI
+
+PR pipelines run inside the project's devcontainer via `devcontainers/ci`.
+A prebuilt image is published to `ghcr.io/kamaal111/joi-to-zod-codemod-devcontainer`
+whenever `.devcontainer/**` changes on `main`, so most CI jobs pull that
+image instead of rebuilding it from scratch.
