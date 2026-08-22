@@ -1,0 +1,36 @@
+name: Publish Devcontainer Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .devcontainer/**
+      - .node-version
+      - package.json
+      - .github/workflows/devcontainer-publish.yml
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push devcontainer image
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/kamaal111/joi-to-zod-codemod-devcontainer
+          push: always
