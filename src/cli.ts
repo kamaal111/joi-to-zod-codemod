@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-
 import { RUN_HELP_TEXT, runCommand } from './commands/run.ts';
 import { CliUsageError } from './errors.ts';
+import packageJSON from '../package.json' with { type: 'json' };
 
 const HELP_FLAGS = new Set(['-h', '--help']);
 const VERSION_FLAGS = new Set(['-v', '--version']);
@@ -26,7 +25,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
   }
 
   if (VERSION_FLAGS.has(command)) {
-    console.log(readPackageVersion());
+    console.log(packageJSON.version);
     return;
   }
 
@@ -53,10 +52,4 @@ function handleError(error: unknown): void {
   const message = error instanceof Error ? error.message : String(error);
   process.stderr.write(`${message}\n`);
   process.exitCode = error instanceof CliUsageError ? 2 : 1;
-}
-
-function readPackageVersion(): string {
-  const nodeRequire = createRequire(import.meta.url);
-  const pkg: { version: string } = nodeRequire('../package.json');
-  return pkg.version;
 }
